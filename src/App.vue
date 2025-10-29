@@ -12,10 +12,11 @@
 <script>
 import Navbar from '@/components/layout/Navbar.vue'
 import FooterBar from '@/components/layout/Footer.vue'
+import Toast from '@/components/common/Toast.vue'
 
 export default {
   name: 'App',
-  components: { Navbar, FooterBar }
+  components: { Navbar, FooterBar, Toast }
 }
 </script>
 

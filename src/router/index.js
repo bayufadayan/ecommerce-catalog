@@ -11,23 +11,23 @@ export default new VueRouter({
     },
     {
       path: '/login',
-      component: () => import('@/views/LoginView.vue')
+      component: () => import('../views/LoginView.vue')
     },
     {
       path: '/products',
-      component: () => import('@/views/ProductsView.vue')
+      component: () => import('../views/ProductView.vue')
     },
     {
       path: '/products/:id',
-      component: () => import('@/views/ProductDetailView.vue')
+      component: () => import('../views/ProductDetailView.vue')
     },
     {
       path: '/cart',
-      component: () => import('@/views/CartView.vue')
+      component: () => import('../views/CartView.vue')
     },
     {
       path: '/profile',
-      component: () => import('@/views/ProfileView.vue')
+      component: () => import('../views/ProfileView.vue')
     },
     {
       path: '*',
