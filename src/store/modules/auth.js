@@ -55,10 +55,18 @@ const actions = {
 
             return token
         } catch (err) {
-            const msg =
-                err?.message === 'Network Error'
-                    ? 'Gagal terhubung ke server. Coba lagi.'
-                    : (err?.message || 'Username atau password tidak sesuai.')
+            // Axios interceptor memformat message jadi "HTTP <status>" utk error HTTP.
+            const raw = err?.message || ''
+            let msg = 'Username atau password tidak sesuai.'
+
+            if (raw.includes('HTTP 401')) {
+                msg = 'Username atau password tidak sesuai.'
+            } else if (raw.includes('HTTP 5')) {
+                msg = 'Server sedang bermasalah. Coba beberapa saat lagi.'
+            } else if (raw.toLowerCase().includes('network')) {
+                msg = 'Gagal terhubung ke server. Periksa koneksi internet Anda.'
+            }
+
             commit('setStatus', 'error')
             commit('setErrorMessage', msg)
         }

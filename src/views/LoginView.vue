@@ -18,12 +18,15 @@ export default {
     methods: {
         async handleSubmit({ username, password }) {
             await this.$store.dispatch('auth/login', { username, password })
+
             if (this.$store.state.auth.status === 'success') {
-                // redirect ke ?redirect=... kalau ada, else /products
                 const to = this.$route.query.redirect || '/products'
                 this.$router.replace(to)
-                // (opsional) tampilkan toast jika ada
+                // toast sukses (jika ada)
                 this.$root?.$children?.[0]?.$refs?.toast?.show?.('Login berhasil', 1500)
+            } else {
+                // opsional: fokuskan ulang ke username/password
+                this.$nextTick(() => document.getElementById('username')?.focus())
             }
         }
     }
