@@ -1,8 +1,12 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import store from '../store';
+
+import ProfileView from '@/views/ProfileView.vue'
 
 Vue.use(VueRouter)
-export default new VueRouter({
+
+const router = new VueRouter({
   mode: 'history',
   routes: [
     {
@@ -27,7 +31,7 @@ export default new VueRouter({
     },
     {
       path: '/profile',
-      component: () => import('@/views/ProfileView.vue'),
+      component: ProfileView,
       meta: { requiresAuth: true }
     },
     {
@@ -36,3 +40,24 @@ export default new VueRouter({
     }
   ]
 })
+
+// Global auth guard
+router.beforeEach((to, from, next) => {
+  const isAuthed = store.getters['auth/isAuthenticated'] // true jika token ada
+
+  // Kalau butuh login & belum login → redirect ke /login?redirect=...
+  if (to.matched.some(rec => rec.meta.requiresAuth) && !isAuthed) {
+    return next({ path: '/login', query: { redirect: to.fullPath } })
+  }
+
+  // Kalau sudah login dan menuju /login → lempar ke tujuan/produk
+  if (to.path === '/login' && isAuthed) {
+    const target = to.query.redirect || '/products'
+    return next({ path: target })
+  }
+
+  return next()
+})
+
+
+export default router
