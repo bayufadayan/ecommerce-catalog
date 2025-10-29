@@ -1,19 +1,48 @@
-<script>
-export default {
-  name: 'App'
-}
-</script>
-
 <template>
-  <div id="app">
-    <nav style="display:flex; gap:12px; padding:12px;">
-      <router-link to="/products">Products</router-link>
-      <router-link to="/cart">Cart</router-link>
-      <router-link to="/login">Login</router-link>
-      <router-link to="/profile">Profile</router-link>
-    </nav>
-    <router-view />
+  <div>
+    <Navbar />
+    <main class="container">
+      <router-view />
+    </main>
+    <Toast ref="toast" />
+    <FooterBar />
   </div>
 </template>
 
-<style scoped></style>
+<script>
+import Navbar from '@/components/layout/Navbar.vue'
+import FooterBar from '@/components/layout/Footer.vue'
+
+export default {
+  name: 'App',
+  components: { Navbar, FooterBar }
+}
+</script>
+
+<style>
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.router-link-exact-active {
+  font-weight: 700;
+}
+
+.container {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 16px;
+}
+</style>
