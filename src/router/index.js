@@ -2,20 +2,36 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 Vue.use(VueRouter)
-
-const router = new VueRouter({
+export default new VueRouter({
   mode: 'history',
-  base: import.meta.env.BASE_URL,
   routes: [
     {
       path: '/',
-      name: 'home',
+      redirect: '/products'
     },
     {
-      path: '/about',
-      name: 'about',
+      path: '/login',
+      component: () => import('@/views/LoginView.vue')
+    },
+    {
+      path: '/products',
+      component: () => import('@/views/ProductsView.vue')
+    },
+    {
+      path: '/products/:id',
+      component: () => import('@/views/ProductDetailView.vue')
+    },
+    {
+      path: '/cart',
+      component: () => import('@/views/CartView.vue')
+    },
+    {
+      path: '/profile',
+      component: () => import('@/views/ProfileView.vue')
+    },
+    {
+      path: '*',
+      redirect: '/products'
     }
   ]
 })
-
-export default router
