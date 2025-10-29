@@ -1,21 +1,29 @@
 @import "./base.css";
 @import "./tokens.css";
 
-.page {
-  background: var(--bg);
-  color: var(--text);
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+.container {
+  max-width: 1040px;
+  margin: 0 auto;
   padding: 16px;
 }
 
+.card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px;
+}
+
 .btn {
-  background: var(--accent);
-  color: var(--accent-contrast);
-  border-radius: 10px;
+  background: #111;
+  color: #fff;
+  border: 0;
   padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
 }
