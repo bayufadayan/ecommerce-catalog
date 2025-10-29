@@ -6,8 +6,15 @@ import './assets/style/main.css';
 
 Vue.config.productionTip = false
 
-new Vue({
+const app = new Vue({
   router,
   store,
-  render: (h) => h(App)
-}).$mount('#app')
+  render: h => h(App)
+})
+
+app.$mount('#app')
+
+if (import.meta.env.DEV) {
+  window.__app = app
+  window.__root = app.$children[0]
+}
