@@ -27,7 +27,8 @@ export default new VueRouter({
     },
     {
       path: '/profile',
-      component: () => import('../views/ProfileView.vue')
+      component: () => import('@/views/ProfileView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '*',

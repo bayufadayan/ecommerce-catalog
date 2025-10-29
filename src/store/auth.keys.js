@@ -1,0 +1,1 @@
+export const FK_TOKEN_KEY = 'fk_token'

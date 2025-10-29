@@ -1,7 +1,8 @@
 const state = () => ({
     token: null,
     user: null,
-    status: 'idle' // 'idle' | 'loading' | 'error' | 'success'
+    status: 'idle',
+    errorMessage: ''
 })
 
 const getters = {
@@ -9,7 +10,7 @@ const getters = {
 }
 
 const actions = {
-    // login({ commit }, { username, password }) {},
+    // async login({ commit }, { username, password }) {},
     // logout({ commit }) {}
 }
 
@@ -17,6 +18,7 @@ const mutations = {
     // setToken(state, token) {},
     // setUser(state, user) {},
     // setStatus(state, status) {},
+    // setErrorMessage(state, msg) {},
     // clearAuth(state) {}
 }
 
