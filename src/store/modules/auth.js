@@ -1,8 +1,11 @@
+import { login as apiLogin } from '../../api/auth';
+import { FK_TOKEN_KEY } from '../auth.keys';
+
 const state = () => ({
-    token: null,                 // string | null
-    user: null,                  // object | null (dipakai Step 7 / Profile)
-    status: 'idle',              // 'idle' | 'loading' | 'error' | 'success'
-    errorMessage: ''             // pesan error untuk ditampilkan di UI
+    token: null,
+    user: null,
+    status: 'idle',
+    errorMessage: ''
 })
 
 const getters = {
@@ -31,13 +34,7 @@ const mutations = {
 }
 
 const actions = {
-    /**
-     * Step 2 (scaffold):
-     * - Siapkan alur status untuk login (tanpa API).
-     * - Di Step 3 kita ganti "TODO" dengan call API + error handling.
-     */
     async login({ commit }, { username, password }) {
-        // validasi minimum (opsional, biar alur status terasa dari sekarang)
         if (!username || !password) {
             commit('setStatus', 'error')
             commit('setErrorMessage', 'Username dan password wajib diisi.')
@@ -47,26 +44,30 @@ const actions = {
         commit('setStatus', 'loading')
         commit('setErrorMessage', '')
 
-        // TODO (Step 3): panggil API login, tangani error/sukses
-        // sementara: simulasi hasil sukses biar UI bisa dicoba jika perlu
-        // HAPUS simulasi ini di Step 3
         try {
-            // simulasi delay
-            await new Promise((r) => setTimeout(r, 350))
+            const { token } = await apiLogin({ username, password })
+            if (!token) throw new Error('Token tidak ditemukan dalam respons.')
 
-            // simulasi token sukses (dummy)
-            const dummyToken = 'DUMMY_TOKEN_REPLACE_IN_STEP_3'
-            commit('setToken', dummyToken)
+            commit('setToken', token)
             commit('setStatus', 'success')
-        } catch (e) {
+
+            localStorage.setItem(FK_TOKEN_KEY, token)
+
+            return token
+        } catch (err) {
+            const msg =
+                err?.message === 'Network Error'
+                    ? 'Gagal terhubung ke server. Coba lagi.'
+                    : (err?.message || 'Username atau password tidak sesuai.')
             commit('setStatus', 'error')
-            commit('setErrorMessage', 'Gagal login. (simulasi)')
+            commit('setErrorMessage', msg)
         }
     },
 
     logout({ commit }) {
         commit('clearAuth')
-        // NOTE: persist (localStorage) akan ditangani di Step 4
+        // CLEAR PERSIST
+        localStorage.removeItem(FK_TOKEN_KEY)
     }
 }
 
