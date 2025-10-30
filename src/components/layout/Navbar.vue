@@ -1,18 +1,23 @@
 <template>
     <header class="nav">
-        <div class="brand"><router-link to="/products">FakeStore</router-link></div>
+        <div class="brand">
+            <router-link to="/products">FakeStore</router-link>
+        </div>
+
         <nav class="links">
-            <router-link to="/products">Products</router-link>
-            <router-link to="/cart" class="cart-link">
-                Cart <span class="badge">{{ cartCount }}</span>
+            <router-link to="/products" exact-active-class="active">Products</router-link>
+
+            <router-link to="/cart" class="cart-link" exact-active-class="active">
+                Cart
+                <span v-if="count > 0" class="badge">{{ count }}</span>
             </router-link>
 
             <template v-if="isAuthenticated">
-                <router-link to="/profile">Profile</router-link>
+                <router-link to="/profile" exact-active-class="active">Profile</router-link>
                 <button class="linklike" @click="onLogout">Logout</button>
             </template>
             <template v-else>
-                <router-link to="/login">Login</router-link>
+                <router-link to="/login" exact-active-class="active">Login</router-link>
             </template>
         </nav>
     </header>
@@ -20,13 +25,13 @@
 
 <script>
 import { mapGetters } from 'vuex'
+
 export default {
     name: 'NavbarView',
     computed: {
         ...mapGetters('auth', ['isAuthenticated']),
-        cartCount() {
-            return this.$store?.state?.cart?.items?.length || 0
-        }
+        // gunakan getter cart/count → total QTY (bukan jumlah baris)
+        ...mapGetters('cart', ['count'])
     },
     methods: {
         onLogout() {
@@ -67,15 +72,18 @@ export default {
 }
 
 .badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
     display: inline-block;
     min-width: 18px;
     padding: 2px 6px;
-    font-size: 12px;
-    border-radius: 12px;
+    font-size: 11px;
+    line-height: 1;
+    border-radius: 999px;
     background: #111;
     color: #fff;
     text-align: center;
-    margin-left: 6px;
 }
 
 .linklike {

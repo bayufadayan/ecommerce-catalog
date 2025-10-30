@@ -1,9 +1,9 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
-import auth from './modules/auth';
-import products from './modules/products';
-import cart from './modules/cart';
-import { FK_TOKEN_KEY } from './auth.keys';
+import Vue from 'vue'
+import Vuex from 'vuex'
+import auth from './modules/auth'
+import products from './modules/products'
+import cart from './modules/cart'
+import { FK_TOKEN_KEY } from './auth.keys'
 
 Vue.use(Vuex)
 
@@ -11,6 +11,9 @@ const store = new Vuex.Store({
     modules: { auth, products, cart }
 })
 
+/* ===========================
+   AUTH: rehydrate & persist
+   =========================== */
 try {
     const saved = localStorage.getItem(FK_TOKEN_KEY)
     if (saved) {
@@ -23,10 +26,8 @@ try {
 
 store.subscribe((mutation, state) => {
     if (mutation.type === 'auth/setToken') {
-        try {
-            localStorage.setItem(FK_TOKEN_KEY, state.auth.token || '')
-
-        } catch {
+        try { localStorage.setItem(FK_TOKEN_KEY, state.auth.token || '') }
+        catch {
             // 
         }
     }
@@ -37,6 +38,41 @@ store.subscribe((mutation, state) => {
         } catch {
             // 
         }
+    }
+})
+
+/* ===========================
+   CART: rehydrate & persist
+   =========================== */
+const CART_KEY = 'fakestore_cart'
+
+function saveCart(items) {
+    try {
+        localStorage.setItem(CART_KEY, JSON.stringify(items || []))
+    } catch { /* empty */ }
+}
+
+function loadCart() {
+    try {
+        const raw = localStorage.getItem(CART_KEY)
+        if (!raw) return
+        const items = JSON.parse(raw)
+        if (Array.isArray(items)) {
+            // gunakan mutation addItem agar struktur tetap konsisten
+            items.forEach(it => store.commit('cart/addItem', it))
+        }
+    } catch {
+        // abaikan error parsing
+    }
+}
+
+// rehydrate cart saat start
+loadCart()
+
+// persist setiap ada perubahan di modul cart
+store.subscribe((mutation, state) => {
+    if (mutation.type.startsWith('cart/')) {
+        saveCart(state.cart.items)
     }
 })
 
