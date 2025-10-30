@@ -85,6 +85,19 @@ export default {
     cursor: pointer;
 }
 
+.btn {
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    background: #f8f8f8;
+}
+
+.btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
 .error {
     color: #b00020;
     font-size: 14px;

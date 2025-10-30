@@ -13,6 +13,7 @@
             </router-link>
 
             <template v-if="isAuthenticated">
+                <span v-if="greet" class="hello">Hi, {{ greet }}</span>
                 <router-link to="/profile" exact-active-class="active">Profile</router-link>
                 <button class="linklike" @click="onLogout">Logout</button>
             </template>
@@ -24,14 +25,20 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 export default {
     name: 'NavbarView',
     computed: {
         ...mapGetters('auth', ['isAuthenticated']),
-        // gunakan getter cart/count → total QTY (bukan jumlah baris)
-        ...mapGetters('cart', ['count'])
+        ...mapGetters('cart', ['count']),
+        ...mapState('profile', ['data', 'loading']),
+        // Greeting opsional: pakai firstname kalau profile sudah ada & bukan loading
+        greet() {
+            if (this.loading) return ''
+            const f = this.data?.name?.firstname
+            return f ? (String(f).charAt(0).toUpperCase() + String(f).slice(1)) : ''
+        }
     },
     methods: {
         onLogout() {
@@ -92,5 +99,13 @@ export default {
     padding: 0;
     cursor: pointer;
     color: inherit;
+}
+
+.hello {
+    color: #666;
+    font-size: 13px;
+    background: #f3f3f3;
+    padding: 4px 8px;
+    border-radius: 999px;
 }
 </style>

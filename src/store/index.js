@@ -8,6 +8,8 @@ import { FK_TOKEN_KEY } from './auth.keys'
 
 Vue.use(Vuex)
 
+const PROFILE_OVERRIDES_KEY = 'fakestore_profile_overrides'
+
 const store = new Vuex.Store({
     modules: { auth, products, cart, profile }
 })
@@ -27,19 +29,14 @@ try {
 
 store.subscribe((mutation, state) => {
     if (mutation.type === 'auth/setToken') {
-        try { localStorage.setItem(FK_TOKEN_KEY, state.auth.token || '') }
-        catch {
-            // 
-        }
+        try { localStorage.setItem(FK_TOKEN_KEY, state.auth.token || '') } catch { /* empty */ }
     }
     if (mutation.type === 'auth/clearAuth') {
-        try {
-            localStorage.removeItem(FK_TOKEN_KEY)
-
-        } catch {
-            // 
-        }
+        try { localStorage.removeItem(FK_TOKEN_KEY) } catch { /* empty */ }
+        // bersihkan profile state
         store.commit('profile/clear')
+        // bersihkan overrides profil lokal
+        try { localStorage.removeItem(PROFILE_OVERRIDES_KEY) } catch { /* empty */ }
     }
 })
 
