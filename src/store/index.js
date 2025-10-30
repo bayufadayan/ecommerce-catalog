@@ -3,12 +3,13 @@ import Vuex from 'vuex'
 import auth from './modules/auth'
 import products from './modules/products'
 import cart from './modules/cart'
+import profile from './modules/profile'
 import { FK_TOKEN_KEY } from './auth.keys'
 
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
-    modules: { auth, products, cart }
+    modules: { auth, products, cart, profile }
 })
 
 /* ===========================
@@ -38,6 +39,7 @@ store.subscribe((mutation, state) => {
         } catch {
             // 
         }
+        store.commit('profile/clear')
     }
 })
 
