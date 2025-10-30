@@ -1,8 +1,8 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import store from '../store'
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import store from '../store';
 
-Vue.use(Router)
+Vue.use(VueRouter)
 
 // LAZY views
 const LoginView = () => import('../views/LoginView.vue')
@@ -12,21 +12,46 @@ const CartView = () => import('../views/CartView.vue')
 const CheckoutView = () => import('../views/CheckoutView.vue')
 const ProfileView = () => import('../views/ProfileView.vue')
 
-const router = new Router({
+const router = new VueRouter({
   mode: 'history',
   routes: [
-    { path: '/', redirect: '/products' },
-    { path: '/login', component: LoginView },
-    { path: '/products', component: ProductView },
-    { path: '/products/:id', component: ProductDetailView },
-    { path: '/cart', component: CartView },
-    { path: '/checkout', component: CheckoutView, meta: { requiresAuth: true } },
-    { path: '/profile', component: ProfileView, meta: { requiresAuth: true } },
-    { path: '*', redirect: '/products' }
+    {
+      path: '/',
+      redirect: '/products'
+    },
+    {
+      path: '/login',
+      component: LoginView
+    },
+    {
+      path: '/products',
+      component: ProductView
+    },
+    {
+      path: '/products/:id',
+      component: ProductDetailView
+    },
+    {
+      path: '/cart',
+      component: CartView
+    },
+    {
+      path: '/checkout',
+      component: CheckoutView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/profile',
+      component: ProfileView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '*',
+      redirect: '/products'
+    }
   ]
 })
 
-// (pertahankan guard kamu; ini contoh aman)
 router.beforeEach((to, from, next) => {
   const isAuthed = store.getters['auth/isAuthenticated']
   if (to.matched.some(r => r.meta.requiresAuth) && !isAuthed) {
