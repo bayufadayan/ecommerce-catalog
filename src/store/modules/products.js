@@ -1,163 +1,146 @@
-import { DEFAULT_FILTERS } from '../../constants/products-filters';
-import { listProducts, listCategories, listByCategory } from '../../api/products';
+// src/store/modules/products.js
+import {
+    listProducts,
+    listCategories,
+    listByCategory
+} from '@/api/products'
+
+const FILTERS_KEY = 'fakestore_products_filters_v1'
 
 const state = () => ({
     items: [],
-    categories: [],
+    categories: ['all'],
     loading: false,
     error: '',
-    filters: { ...DEFAULT_FILTERS },
-    lastLoadedAt: 0
+    // filters persist
+    filters: loadFilters() // { query:'', category:'all', sortBy:'relevance'|'price-asc'|'price-desc'|'rating-desc' }
 })
+
 const getters = {
-    /**
-     * filteredProducts:
-     * - Filter by query (title/description), case-insensitive
-     * - Sort by: relevance (default), price-asc/price-desc, name-asc, rating-desc
-     */
-    filteredProducts: (s) => {
-        const { query, sortBy } = s.filters
-        const q = (query || '').trim().toLowerCase()
+    categoriesWithAll: (s) => Array.from(new Set(['all', ...s.categories])),
+    // hasil akhir di client (karena fakestore gak support query server)
+    filteredSorted: (s) => {
+        let arr = [...s.items]
 
-        // 1) Base list
-        let out = Array.isArray(s.items) ? s.items.slice() : []
+        // filter by category (server fetch jika bukan "all", tapi jaga-jaga kalau items full cache dipakai)
+        if (s.filters.category && s.filters.category !== 'all') {
+            arr = arr.filter(p => String(p.category) === String(s.filters.category))
+        }
 
-        // 2) Filter by query (title/description)
+        // query (client-side contains)
+        const q = (s.filters.query || '').trim().toLowerCase()
         if (q) {
-            out = out.filter((p) => {
-                const t = (p.title || '').toLowerCase()
-                const d = (p.description || '').toLowerCase()
-                return t.includes(q) || d.includes(q)
+            arr = arr.filter(p => {
+                const hay = [p.title, p.description, p.category].join(' ').toLowerCase()
+                return hay.includes(q)
             })
         }
 
-        // 3) Sorting
-        switch (sortBy) {
-            case 'price-asc':
-                out.sort((a, b) => num(a.price) - num(b.price))
-                break
-            case 'price-desc':
-                out.sort((a, b) => num(b.price) - num(a.price))
-                break
-            case 'name-asc':
-                out.sort((a, b) => str(a.title).localeCompare(str(b.title)))
-                break
-            case 'rating-desc':
-                out.sort((a, b) => num(b?.rating?.rate) - num(a?.rating?.rate))
-                break
-            // 'relevance' → biarkan urutan asli dari API
+        // sorting
+        switch (s.filters.sortBy) {
+            case 'price-asc': arr.sort((a, b) => num(a.price) - num(b.price)); break
+            case 'price-desc': arr.sort((a, b) => num(b.price) - num(a.price)); break
+            case 'rating-desc': arr.sort((a, b) => num(b.rating?.rate) - num(a.rating?.rate)); break
+            default: /* relevance (no-op) */ break
         }
 
-        return out
-    },
-
-    categoriesWithAll: (s) => ['all', ...s.categories],
-    hasError: (s) => !!s.error,
-    isLoading: (s) => !!s.loading
+        return arr
+    }
 }
 
-// Helpers lokal
-function num(v) { return Number.isFinite(v) ? v : Number(v) || 0 }
-function str(v) { return (v == null ? '' : String(v)) }
-
-
 const mutations = {
-    setItems(state, items) { state.items = Array.isArray(items) ? items : [] },
-    setCategories(state, categories) { state.categories = Array.isArray(categories) ? categories : [] },
-
-    setLoading(state, val) { state.loading = !!val },
-    setError(state, msg) { state.error = msg || '' },
-    setLastLoadedAt(state, ts) { state.lastLoadedAt = ts || Date.now() },
-
-    setCategory(state, category) { state.filters.category = category || 'all' },
-    setQuery(state, query) { state.filters.query = (query || '').trim() },
-    setSortBy(state, sortBy) { state.filters.sortBy = sortBy || 'relevance' },
-
-    resetFilters(state) { state.filters = { ...DEFAULT_FILTERS } },
-    clear(state) {
-        state.items = []
-        state.error = ''
-        state.loading = false
-        state.lastLoadedAt = 0
+    setLoading(s, v) { s.loading = !!v },
+    setError(s, msg) { s.error = msg || '' },
+    setItems(s, items) { s.items = Array.isArray(items) ? items : [] },
+    setCategories(s, cats) {
+        const base = Array.isArray(cats) ? cats : []
+        s.categories = ['all', ...base.filter(Boolean)]
+    },
+    setQuery(s, v) {
+        s.filters.query = String(v || '')
+        saveFilters(s.filters)
+    },
+    setCategory(s, v) {
+        s.filters.category = v || 'all'
+        saveFilters(s.filters)
+    },
+    setSortBy(s, v) {
+        s.filters.sortBy = v || 'relevance'
+        saveFilters(s.filters)
+    },
+    restoreFilters(s) {
+        const f = loadFilters()
+        s.filters = { ...s.filters, ...f }
     }
 }
 
 const actions = {
-    /**
-     * boot(): Ambil kategori + produk awal paralel.
-     * - Tampilkan loading
-     * - Simpan categories & items
-     */
-    async boot({ commit, state }) {
-        // Kalau sudah pernah load & masih fresh, boleh di-skip (opsional)
-        if (state.items.length && state.categories.length) return
-
-        commit('setLoading', true)
-        commit('setError', '')
+    async bootstrap({ commit }) {
+        // muat kategori di awal (untuk chips)
         try {
-            const [categories, items] = await Promise.all([
-                listCategories(),
-                listProducts() // bisa kasih { limit, sort } kalau mau
-            ])
-            commit('setCategories', categories)
-            commit('setItems', items)
-            commit('setLastLoadedAt', Date.now())
+            commit('setLoading', true)
+            commit('setError', '')
+            const cats = await listCategories()
+            commit('setCategories', cats || [])
         } catch (e) {
-            commit('setError', e?.message || 'Gagal memuat katalog.')
+            commit('setError', e?.message || 'Gagal memuat kategori.')
+        } finally {
+            commit('setLoading', false)
+        }
+    },
+
+    async fetchProducts({ state, commit }) {
+        // Ambil produk sesuai kategori:
+        // - "all" → /products (full)
+        // - spesifik → /products/category/:name (biar efisien)
+        try {
+            commit('setLoading', true)
+            commit('setError', '')
+            let data = []
+            if (state.filters.category && state.filters.category !== 'all') {
+                data = await listByCategory(state.filters.category, {})
+            } else {
+                data = await listProducts({})
+            }
+            commit('setItems', data || [])
+        } catch (e) {
+            const msg =
+                e?.message?.includes('HTTP 404') ? 'Produk tidak ditemukan (404).' :
+                    /network/i.test(e?.message || '') ? 'Gagal terhubung ke server.' :
+                        (e?.message || 'Gagal memuat produk.')
+            commit('setError', msg)
             commit('setItems', [])
         } finally {
             commit('setLoading', false)
         }
     },
 
-    /**
-     * fetchAll(): Ambil semua produk (opsional limit/sort dari API)
-     */
-    async fetchAll({ commit }, { limit, sort } = {}) {
-        commit('setLoading', true)
-        commit('setError', '')
-        try {
-            const items = await listProducts({ limit, sort })
-            commit('setItems', items)
-            commit('setLastLoadedAt', Date.now())
-        } catch (e) {
-            commit('setError', e?.message || 'Gagal memuat produk.')
-            commit('setItems', [])
-        } finally {
-            commit('setLoading', false)
-        }
+    setQuery({ commit }, v) { commit('setQuery', v) },
+    setCategory({ commit, dispatch }, v) {
+        commit('setCategory', v)
+        // fetch ulang dari server bila kategori berubah
+        dispatch('fetchProducts')
     },
+    setSortBy({ commit }, v) { commit('setSortBy', v) }
+}
 
-    /**
-     * fetchByCategory(name): Ambil produk untuk kategori tertentu.
-     * - Jika 'all', delegasikan ke fetchAll.
-     */
-    async fetchByCategory({ dispatch, commit }, name, { limit, sort } = {}) {
-        if (!name || name === 'all') {
-            return dispatch('fetchAll', { limit, sort })
-        }
-        commit('setLoading', true)
-        commit('setError', '')
-        try {
-            const items = await listByCategory(name, { limit, sort })
-            commit('setItems', items)
-            commit('setLastLoadedAt', Date.now())
-        } catch (e) {
-            commit('setError', e?.message || 'Gagal memuat produk per kategori.')
-            commit('setItems', [])
-        } finally {
-            commit('setLoading', false)
-        }
-    },
+// helpers
+function num(v) { return Number(v) || 0 }
 
-    /**
-     * (Opsional) setFilters: helper untuk update beberapa filter sekaligus
-     */
-    setFilters({ commit }, { category, query, sortBy } = {}) {
-        if (typeof category !== 'undefined') commit('setCategory', category)
-        if (typeof query !== 'undefined') commit('setQuery', query)
-        if (typeof sortBy !== 'undefined') commit('setSortBy', sortBy)
+function loadFilters() {
+    try {
+        const raw = localStorage.getItem(FILTERS_KEY)
+        const def = { query: '', category: 'all', sortBy: 'relevance' }
+        if (!raw) return def
+        const f = JSON.parse(raw)
+        return { ...def, ...f }
+    } catch {
+        return { query: '', category: 'all', sortBy: 'relevance' }
     }
 }
 
-export default { namespaced: true, state, getters, actions, mutations }
+function saveFilters(f) {
+    try { localStorage.setItem(FILTERS_KEY, JSON.stringify(f || {})) } catch { /* empty */ }
+}
+
+export default { namespaced: true, state, getters, mutations, actions }

@@ -1,75 +1,72 @@
+// src/store/index.js
 import Vue from 'vue'
 import Vuex from 'vuex'
+
+// modules
 import auth from './modules/auth'
-import products from './modules/products'
+import products from './modules/products'   // ← PASTIKAN path & nama ini benar
 import cart from './modules/cart'
 import profile from './modules/profile'
+
+// keys
 import { FK_TOKEN_KEY } from './auth.keys'
 
 Vue.use(Vuex)
 
-const PROFILE_OVERRIDES_KEY = 'fakestore_profile_overrides'
-
 const store = new Vuex.Store({
-    modules: { auth, products, cart, profile }
+    modules: {
+        auth,
+        products,   // ← REGISTER di sini dengan key 'products' (namespaced)
+        cart,
+        profile
+    }
 })
 
-/* ===========================
-   AUTH: rehydrate & persist
-   =========================== */
+/* === AUTH rehydrate === */
 try {
     const saved = localStorage.getItem(FK_TOKEN_KEY)
     if (saved) {
         store.commit('auth/setToken', saved)
         store.commit('auth/setStatus', 'success')
     }
-} catch (e) {
-    // ignore storage errors (Safari private mode, etc)
-}
+} catch { /* empty */ }
 
-store.subscribe((mutation, state) => {
-    if (mutation.type === 'auth/setToken') {
-        try { localStorage.setItem(FK_TOKEN_KEY, state.auth.token || '') } catch { /* empty */ }
-    }
-    if (mutation.type === 'auth/clearAuth') {
-        try { localStorage.removeItem(FK_TOKEN_KEY) } catch { /* empty */ }
-        // bersihkan profile state
-        store.commit('profile/clear')
-        // bersihkan overrides profil lokal
-        try { localStorage.removeItem(PROFILE_OVERRIDES_KEY) } catch { /* empty */ }
-    }
-})
-
-/* ===========================
-   CART: rehydrate & persist
-   =========================== */
+/* === CART re/persist === */
 const CART_KEY = 'fakestore_cart'
+let __cartRehydrated = false
 
 function saveCart(items) {
-    try {
-        localStorage.setItem(CART_KEY, JSON.stringify(items || []))
-    } catch { /* empty */ }
+    try { localStorage.setItem(CART_KEY, JSON.stringify(items || [])) } catch { /* empty */ }
 }
 
-function loadCart() {
+function loadCartOnce() {
+    if (__cartRehydrated) return
+    __cartRehydrated = true
     try {
         const raw = localStorage.getItem(CART_KEY)
         if (!raw) return
         const items = JSON.parse(raw)
-        if (Array.isArray(items)) {
-            // gunakan mutation addItem agar struktur tetap konsisten
-            items.forEach(it => store.commit('cart/addItem', it))
-        }
-    } catch {
-        // abaikan error parsing
-    }
+        if (Array.isArray(items)) items.forEach(it => store.commit('cart/addItem', it))
+    } catch { /* empty */ }
 }
+loadCartOnce()
 
-// rehydrate cart saat start
-loadCart()
-
-// persist setiap ada perubahan di modul cart
 store.subscribe((mutation, state) => {
+    // auth persist
+    if (mutation.type === 'auth/setToken') {
+        try { localStorage.setItem(FK_TOKEN_KEY, state.auth.token || '') } catch { /* empty */ }
+    }
+
+    // auth clear
+    if (mutation.type === 'auth/clearAuth') {
+        try { localStorage.removeItem(FK_TOKEN_KEY) } catch { /* empty */ }
+        store.commit('profile/clear')
+        try { localStorage.removeItem('fakestore_profile_overrides') } catch { /* empty */ }
+        // Jika ingin kosongkan cart saat logout, uncomment:
+        // store.commit('cart/clear'); try { localStorage.removeItem(CART_KEY) } catch {}
+    }
+
+    // cart persist
     if (mutation.type.startsWith('cart/')) {
         saveCart(state.cart.items)
     }

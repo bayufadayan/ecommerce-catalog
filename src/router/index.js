@@ -1,67 +1,42 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-import store from '../store';
+import Vue from 'vue'
+import Router from 'vue-router'
+import store from '../store'
 
-import CheckoutView from '../views/CheckoutView.vue'
+Vue.use(Router)
 
-Vue.use(VueRouter)
+// LAZY views
+const LoginView = () => import('../views/LoginView.vue')
+const ProductView = () => import('../views/ProductView.vue')
+const ProductDetailView = () => import('../views/ProductDetailView.vue')
+const CartView = () => import('../views/CartView.vue')
+const CheckoutView = () => import('../views/CheckoutView.vue')
+const ProfileView = () => import('../views/ProfileView.vue')
 
-const router = new VueRouter({
+const router = new Router({
   mode: 'history',
   routes: [
-    {
-      path: '/',
-      redirect: '/products'
-    },
-    {
-      path: '/login',
-      component: () => import('../views/LoginView.vue')
-    },
-    {
-      path: '/products',
-      component: () => import('../views/ProductView.vue')
-    },
-    {
-      path: '/products/:id',
-      component: () => import('../views/ProductDetailView.vue')
-    },
-    {
-      path: '/cart',
-      component: () => import('../views/CartView.vue')
-    },
-    {
-      path: '/checkout',
-      component: CheckoutView,
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/profile',
-      component: () => import('../views/ProfileView.vue'),
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '*',
-      redirect: '/products'
-    }
+    { path: '/', redirect: '/products' },
+    { path: '/login', component: LoginView },
+    { path: '/products', component: ProductView },
+    { path: '/products/:id', component: ProductDetailView },
+    { path: '/cart', component: CartView },
+    { path: '/checkout', component: CheckoutView, meta: { requiresAuth: true } },
+    { path: '/profile', component: ProfileView, meta: { requiresAuth: true } },
+    { path: '*', redirect: '/products' }
   ]
 })
 
-// Global auth guard
+// (pertahankan guard kamu; ini contoh aman)
 router.beforeEach((to, from, next) => {
-  const isAuthed = store.getters['auth/isAuthenticated'] // true jika token ada
-
-  // Kalau butuh login & belum login → redirect ke /login?redirect=...
-  if (to.matched.some(rec => rec.meta.requiresAuth) && !isAuthed) {
+  const isAuthed = store.getters['auth/isAuthenticated']
+  if (to.matched.some(r => r.meta.requiresAuth) && !isAuthed) {
     return next({ path: '/login', query: { redirect: to.fullPath } })
   }
-
-  // Kalau sudah login dan menuju /login → lempar ke tujuan/produk
   if (to.path === '/login' && isAuthed) {
     const target = to.query.redirect || '/products'
-    return next({ path: target })
+    return next(target)
   }
-
-  return next()
+  next()
 })
 
 export default router
