@@ -2,71 +2,76 @@
     <section class="container">
         <h1 style="margin-bottom:12px;">Products</h1>
 
-        <!-- ERROR -->
+        <ProductsHeader :categories="categories" :valueCategory="category" :valueQuery="query" :valueSortBy="sortBy"
+            @update:category="category = $event" @update:query="query = $event" @update:sortBy="sortBy = $event"
+            @reset="onResetFilters" />
+
         <ErrorBanner v-if="error" :message="error" @retry="retry" />
-
-        <!-- LOADING -->
         <LoadingSpinner v-else-if="loading" />
-
-        <!-- EMPTY -->
-        <EmptyState v-else-if="items.length === 0" title="Belum ada produk"
-            description="Coba perbarui atau ganti filter.">
-            <button class="btn" @click="retry" style="margin-top:12px;">Muat Ulang</button>
+        <EmptyState v-else-if="list.length === 0" title="Belum ada produk"
+            description="Coba ubah kata kunci, kategori, atau reset filter.">
+            <button class="btn" @click="onResetFilters" style="margin-top:12px;">Reset Filter</button>
         </EmptyState>
 
-        <!-- CONTENT PLACEHOLDER -->
-        <div v-else class="grid">
-            <div v-for="n in 8" :key="n" class="card">Product card placeholder #{{ n }}</div>
-        </div>
+        <!-- Gantikan grid sementara dengan ProductGrid -->
+        <ProductGrid v-else :items="list" :loading="loading" :skeletonCount="8" @select="goToDetail" />
+
     </section>
 </template>
 
 <script>
+import { mapState, mapGetters, mapMutations } from 'vuex'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import ErrorBanner from '@/components/common/ErrorBanner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import ProductsHeader from '@/components/products/ProductsHeader.vue'
+import ProductGrid from '@/components/products/ProductGrid.vue'
 
 export default {
     name: 'ProductsView',
-    components: { LoadingSpinner, ErrorBanner, EmptyState },
-    data() {
-        return {
-            loading: true,
-            error: '',
-            items: []
+    components: { LoadingSpinner, ErrorBanner, EmptyState, ProductsHeader, ProductGrid },
+    computed: {
+        ...mapState('products', ['loading', 'error', 'filters']),
+        ...mapGetters('products', ['filteredProducts', 'categoriesWithAll']),
+        categories() { return this.categoriesWithAll },
+        category: {
+            get() { return this.filters.category },
+            set(v) { this.setCategory(v) }
+        },
+        query: {
+            get() { return this.filters.query },
+            set(v) { this.setQuery(v) }
+        },
+        sortBy: {
+            get() { return this.filters.sortBy },
+            set(v) { this.setSortBy(v) }
+        },
+        list() { return this.filteredProducts || [] }
+    },
+    methods: {
+        ...mapMutations('products', ['setCategory', 'setQuery', 'setSortBy', 'resetFilters']),
+        async retry() {
+            if (this.category && this.category !== 'all') {
+                await this.$store.dispatch('products/fetchByCategory', this.category)
+            } else {
+                await this.$store.dispatch('products/fetchAll')
+            }
+        },
+        onResetFilters() {
+            this.resetFilters()
+            this.retry()
+        },
+        goToDetail(p) { this.$router.push(`/products/${p.id}`) }
+    },
+    watch: {
+        category(newVal, oldVal) {
+            if (newVal === oldVal) return
+            if (!newVal || newVal === 'all') this.$store.dispatch('products/fetchAll')
+            else this.$store.dispatch('products/fetchByCategory', newVal)
         }
     },
     created() {
-        // simulasi fetch: sukses
-        setTimeout(() => {
-            this.loading = false
-            this.items = new Array(8).fill(null) // nanti diganti data beneran
-        }, 600)
-    },
-    methods: {
-        retry() {
-            this.error = ''
-            this.loading = true
-            setTimeout(() => {
-                // ganti jadi simulasi gagal/sukses sesuai kebutuhan
-                this.loading = false
-                this.items = new Array(8).fill(null)
-            }, 500)
-        }
+        this.$store.dispatch('products/boot')
     }
 }
 </script>
-
-<style scoped>
-.grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-}
-
-@media (min-width: 768px) {
-    .grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-}
-</style>

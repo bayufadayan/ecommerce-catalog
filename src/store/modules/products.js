@@ -10,11 +10,56 @@ const state = () => ({
     lastLoadedAt: 0
 })
 const getters = {
-    filteredProducts: (s) => s.items, // logic search/sort nanti di Step 6
+    /**
+     * filteredProducts:
+     * - Filter by query (title/description), case-insensitive
+     * - Sort by: relevance (default), price-asc/price-desc, name-asc, rating-desc
+     */
+    filteredProducts: (s) => {
+        const { query, sortBy } = s.filters
+        const q = (query || '').trim().toLowerCase()
+
+        // 1) Base list
+        let out = Array.isArray(s.items) ? s.items.slice() : []
+
+        // 2) Filter by query (title/description)
+        if (q) {
+            out = out.filter((p) => {
+                const t = (p.title || '').toLowerCase()
+                const d = (p.description || '').toLowerCase()
+                return t.includes(q) || d.includes(q)
+            })
+        }
+
+        // 3) Sorting
+        switch (sortBy) {
+            case 'price-asc':
+                out.sort((a, b) => num(a.price) - num(b.price))
+                break
+            case 'price-desc':
+                out.sort((a, b) => num(b.price) - num(a.price))
+                break
+            case 'name-asc':
+                out.sort((a, b) => str(a.title).localeCompare(str(b.title)))
+                break
+            case 'rating-desc':
+                out.sort((a, b) => num(b?.rating?.rate) - num(a?.rating?.rate))
+                break
+            // 'relevance' → biarkan urutan asli dari API
+        }
+
+        return out
+    },
+
     categoriesWithAll: (s) => ['all', ...s.categories],
     hasError: (s) => !!s.error,
     isLoading: (s) => !!s.loading
 }
+
+// Helpers lokal
+function num(v) { return Number.isFinite(v) ? v : Number(v) || 0 }
+function str(v) { return (v == null ? '' : String(v)) }
+
 
 const mutations = {
     setItems(state, items) { state.items = Array.isArray(items) ? items : [] },
