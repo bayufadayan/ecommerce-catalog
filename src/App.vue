@@ -12,7 +12,7 @@ export default {
 <template>
   <div id="app">
     <Navbar />
-    <main class="container">
+    <main class="container-outside">
       <router-view />
     </main>
     <Toast ref="toast" />

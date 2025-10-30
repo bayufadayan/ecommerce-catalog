@@ -1,11 +1,8 @@
 <template>
     <main :class="['product-detail', themeClass]">
-        <!-- band background sesuai tema -->
         <div class="pd-hero"></div>
 
-        <section class="container">
-            <h1 class="pd-page-title">Product Detail</h1>
-
+        <section class="container-product-detail">
             <ErrorBanner v-if="error" :message="error" @retry="retry" />
             <LoadingSpinner v-else-if="loading" />
 
