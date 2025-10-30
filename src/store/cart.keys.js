@@ -1,0 +1,1 @@
+export const CART_KEY = 'fakestore_cart'
