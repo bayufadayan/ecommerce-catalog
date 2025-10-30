@@ -1,5 +1,7 @@
-// src/api/users.js
-import api from './client'
+import api from './client';
 
-export const getUserById = (id) =>
-    api.get(`/users/${id}`).then(r => r.data)
+export const getUserById = async (id) => {
+    if (!id) return null;
+    const { data } = await api.get(`/users/${id}`);
+    return data || null;
+};
