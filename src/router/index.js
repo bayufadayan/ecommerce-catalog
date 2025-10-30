@@ -2,8 +2,6 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import store from '../store';
 
-import ProfileView from '@/views/ProfileView.vue'
-
 Vue.use(VueRouter)
 
 const router = new VueRouter({
@@ -31,7 +29,7 @@ const router = new VueRouter({
     },
     {
       path: '/profile',
-      component: ProfileView,
+      component: () => import('../views/ProfileView.vue'),
       meta: { requiresAuth: true }
     },
     {
