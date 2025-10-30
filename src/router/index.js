@@ -2,6 +2,8 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import store from '../store';
 
+import CheckoutView from '../views/CheckoutView.vue'
+
 Vue.use(VueRouter)
 
 const router = new VueRouter({
@@ -26,6 +28,10 @@ const router = new VueRouter({
     {
       path: '/cart',
       component: () => import('../views/CartView.vue')
+    },
+    {
+      path: '/checkout',
+      component: CheckoutView
     },
     {
       path: '/profile',

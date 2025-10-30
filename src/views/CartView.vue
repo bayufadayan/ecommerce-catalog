@@ -96,7 +96,8 @@ export default {
         },
         checkout() {
             // dummy: cukup tampilkan toast
-            this.$root?.$children?.[0]?.$refs?.toast?.show?.('Checkout (dummy): segera hadir!', 1500)
+            // this.$root?.$children?.[0]?.$refs?.toast?.show?.('Checkout (dummy): segera hadir!', 1500)
+            this.$router.push('/checkout')
         }
     }
 }
