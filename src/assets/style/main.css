@@ -1,22 +1,17 @@
 @import "./base.css";
 @import "./tokens.css";
 
+/* Common */
 .container {
   max-width: 1040px;
   margin: 0 auto;
   padding: 16px;
-}
-
-.card {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  padding: 12px;
+  background-color: var(--color-neutral-50);
 }
 
 .btn {
-  background: #111;
-  color: #fff;
+  background: var(--color-neutral-900);
+  color: var(--color-neutral-50);
   border: 0;
   padding: 8px 16px;
   cursor: pointer;
@@ -26,3 +21,5 @@
   opacity: .6;
   cursor: not-allowed;
 }
+
+/* Specific */

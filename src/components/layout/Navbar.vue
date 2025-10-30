@@ -1,57 +1,3 @@
-<template>
-    <header class="nav">
-        <div class="brand">
-            <router-link to="/products">
-                <LogoApp />
-            </router-link>
-        </div>
-
-        <nav class="links">
-            <router-link to="/products" exact-active-class="active" class="products-link">
-                <FaIcon icon="box" class="icon-products" />
-                <span>Products</span>
-            </router-link>
-
-            <router-link to="/cart" class="cart-link" exact-active-class="active">
-                <FaIcon icon="shopping-cart" class="icon" />
-                <span v-if="count > 0" class="badge">{{ displayCount }}</span>
-            </router-link>
-
-
-            <template v-if="isAuthenticated">
-                <!-- USER DROPDOWN -->
-                <div class="btn profile" ref="menu">
-                    <button class="user-trigger" @click.stop="toggleMenu" @keydown.down.prevent="openMenu"
-                        @keydown.esc.prevent="closeMenu" :aria-expanded="open ? 'true' : 'false'" aria-haspopup="true">
-                        <FaIcon icon="user-circle" class="user-icon"/>
-                        <span class="hello">Hi, {{ greet || 'Account' }}</span>
-                        <span :class="{ open }">
-                            <FaIcon icon="chevron-down" class="caret" />
-                        </span>
-                    </button>
-
-                    <ul v-show="open" class="dropdown" role="menu">
-                        <li role="none">
-                            <router-link to="/profile" role="menuitem" @click.native="closeMenu">
-                                Profile
-                            </router-link>
-                        </li>
-                        <li role="none">
-                            <button class="linklike" role="menuitem" @click="onLogoutAndClose">
-                                Logout
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </template>
-
-            <template v-else>
-                <router-link to="/login" exact-active-class="active" class="btn login">Login</router-link>
-            </template>
-        </nav>
-    </header>
-</template>
-
 <script>
 import { mapGetters, mapState } from 'vuex';
 import LogoApp from '@/components/common/LogoApp.vue';
@@ -66,7 +12,6 @@ export default {
         ...mapGetters('auth', ['isAuthenticated']),
         ...mapGetters('cart', ['count']),
         ...mapState('profile', ['data', 'loading']),
-        // salam pakai firstname (opsional)
         greet() {
             if (this.loading) return ''
             const f = this.data && this.data.name && this.data.name.firstname
@@ -105,6 +50,60 @@ export default {
     }
 }
 </script>
+
+<template>
+    <header class="nav">
+        <div class="brand">
+            <router-link to="/products">
+                <LogoApp />
+            </router-link>
+        </div>
+
+        <nav class="links">
+            <router-link to="/products" exact-active-class="active" class="products-link">
+                <FaIcon icon="box" class="icon-products" />
+                <span>Products</span>
+            </router-link>
+
+            <router-link to="/cart" class="cart-link" exact-active-class="active">
+                <FaIcon icon="shopping-cart" class="icon" />
+                <span v-if="count > 0" class="badge">{{ displayCount }}</span>
+            </router-link>
+
+
+            <template v-if="isAuthenticated">
+                <!-- USER DROPDOWN -->
+                <div class="btn profile" ref="menu">
+                    <button class="user-trigger" @click.stop="toggleMenu" @keydown.down.prevent="openMenu"
+                        @keydown.esc.prevent="closeMenu" :aria-expanded="open ? 'true' : 'false'" aria-haspopup="true">
+                        <FaIcon icon="user-circle" class="user-icon" />
+                        <span class="hello">Hi, {{ greet || 'Account' }}</span>
+                        <span :class="{ open }">
+                            <FaIcon icon="chevron-down" class="caret" />
+                        </span>
+                    </button>
+
+                    <ul v-show="open" class="dropdown" role="menu">
+                        <li role="none">
+                            <router-link to="/profile" role="menuitem" @click.native="closeMenu">
+                                Profile
+                            </router-link>
+                        </li>
+                        <li role="none">
+                            <button class="linklike" role="menuitem" @click="onLogoutAndClose">
+                                Logout
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </template>
+
+            <template v-else>
+                <router-link to="/login" exact-active-class="active" class="btn login">Login</router-link>
+            </template>
+        </nav>
+    </header>
+</template>
 
 <style scoped>
 .nav {
