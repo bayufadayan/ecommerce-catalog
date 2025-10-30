@@ -1,7 +1,7 @@
 <template>
     <section class="container">
-        <button class="linklike" @click="$router.back()">← Kembali</button>
-        <h1 style="margin:8px 0 12px;">Profil</h1>
+        <BackButton />
+        <h1 class="profile-title">Profil</h1>
 
         <!-- ERROR -->
         <ErrorBanner v-if="error" :message="error" @retry="retry" />
@@ -62,60 +62,60 @@
                     <div class="row2">
                         <div class="field">
                             <label>First name</label>
-                            <input v-model.trim="draft.firstname" type="text" />
+                            <input v-model.trim="draft.firstname" type="text" class="input" />
                         </div>
                         <div class="field">
                             <label>Last name</label>
-                            <input v-model.trim="draft.lastname" type="text" />
+                            <input v-model.trim="draft.lastname" type="text" class="input"/>
                         </div>
                     </div>
 
                     <div class="row2">
                         <div class="field">
                             <label>Username</label>
-                            <input v-model.trim="draft.username" type="text" />
+                            <input v-model.trim="draft.username" type="text" class="input"/>
                         </div>
                         <div class="field">
                             <label>Email</label>
-                            <input v-model.trim="draft.email" type="email" />
+                            <input v-model.trim="draft.email" type="email" class="input" />
                         </div>
                     </div>
 
                     <div class="row2">
                         <div class="field">
                             <label>Telepon</label>
-                            <input v-model.trim="draft.phone" type="text" />
+                            <input v-model.trim="draft.phone" type="text" class="input" />
                         </div>
                         <div class="field">
                             <label>Kode Pos</label>
-                            <input v-model.trim="draft.zipcode" type="text" inputmode="numeric" pattern="[0-9]*" />
+                            <input v-model.trim="draft.zipcode" type="text" inputmode="numeric" pattern="[0-9]*" class="input" />
                         </div>
                     </div>
 
                     <div class="field">
                         <label>Jalan / Alamat</label>
-                        <input v-model.trim="draft.street" type="text" />
+                        <input v-model.trim="draft.street" type="text" class="input"/>
                     </div>
 
                     <div class="row2">
                         <div class="field">
                             <label>Kota</label>
-                            <input v-model.trim="draft.city" type="text" />
+                            <input v-model.trim="draft.city" type="text" class="input"/>
                         </div>
                         <div class="field">
                             <label>Negara</label>
-                            <input v-model.trim="draft.country" type="text" />
+                            <input v-model.trim="draft.country" type="text" class="input" />
                         </div>
                     </div>
 
                     <div class="row2">
                         <div class="field">
                             <label>Latitude</label>
-                            <input v-model.trim="draft.lat" type="text" />
+                            <input v-model.trim="draft.lat" type="text" class="input"/>
                         </div>
                         <div class="field">
                             <label>Longitude</label>
-                            <input v-model.trim="draft.long" type="text" />
+                            <input v-model.trim="draft.long" type="text" class="input"/>
                         </div>
                     </div>
                 </form>
@@ -150,18 +150,19 @@
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import ErrorBanner from '@/components/common/ErrorBanner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import BackButton from '@/components/common/BackButton.vue'
 import { mapState } from 'vuex'
 
 const OVERRIDES_KEY = 'fakestore_profile_overrides'
 
 export default {
     name: 'ProfileView',
-    components: { LoadingSpinner, ErrorBanner, EmptyState },
+    components: { LoadingSpinner, ErrorBanner, EmptyState, BackButton },
     data() {
         return {
             editing: false,
-            overrides: null, // object hasil load dari localStorage
-            draft: {         // field editable (flat, mudah di-bind)
+            overrides: null,
+            draft: {
                 firstname: '', lastname: '', username: '', email: '', phone: '',
                 street: '', city: '', country: '', zipcode: '',
                 lat: '', long: ''
@@ -172,7 +173,6 @@ export default {
         ...mapState('profile', ['data', 'loading', 'error']),
         profile() { return this.data },
 
-        // effective = API data + overrides (jika ada)
         effective() {
             const p = this.profile
             if (!p) return null
@@ -225,7 +225,6 @@ export default {
                 const raw = localStorage.getItem(OVERRIDES_KEY)
                 this.overrides = raw ? JSON.parse(raw) : null
             } catch { this.overrides = null }
-            // refresh draft dari effective (agar edit prefilled)
             this.toDraftFromEffective()
         },
         saveOverrides() {
@@ -247,11 +246,8 @@ export default {
             this.toDraftFromEffective()
         },
         onSave() {
-            // Bangun overrides dari draft (hanya field yang berubah)
             const base = this.effective || {}
             const o = {}
-
-            // helper setIfChanged
             const setIfChanged = (key, current, baseVal) => {
                 const val = (current ?? '').trim()
                 if (val && val !== (baseVal ?? '')) o[key] = val
@@ -270,9 +266,8 @@ export default {
             setIfChanged('lat', this.draft.lat, base.address?.geolocation?.lat)
             setIfChanged('long', this.draft.long, base.address?.geolocation?.long)
 
-            // merge dengan overrides lama
             this.overrides = { ...(this.overrides || {}), ...o }
-            // buang key kosong yang gak perlu
+
             Object.keys(this.overrides).forEach(k => {
                 if (this.overrides[k] === undefined) delete this.overrides[k]
             })
@@ -315,159 +310,5 @@ function cap(s) {
     s = String(s)
     return s.charAt(0).toUpperCase() + s.slice(1)
 }
+
 </script>
-
-<style scoped>
-.linklike {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    color: inherit;
-    font: inherit;
-}
-
-.pf {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-}
-
-@media (min-width: 900px) {
-    .pf {
-        grid-template-columns: 2fr 1fr;
-        align-items: start;
-    }
-}
-
-.panel {
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 12px;
-    background: #fff;
-}
-
-.head {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 12px;
-    background: #111;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-}
-
-.ident .name {
-    font-size: 18px;
-    font-weight: 800;
-    line-height: 1.2;
-}
-
-.ident .uname {
-    color: #666;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 8px;
-}
-
-.item {
-    border: 1px solid #f0f0f0;
-    border-radius: 10px;
-    padding: 10px;
-    background: #fafafa;
-}
-
-.item.span2 {
-    grid-column: span 2;
-}
-
-.label {
-    font-size: 12px;
-    color: #777;
-    margin-bottom: 4px;
-}
-
-.value {
-    font-weight: 600;
-}
-
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.field input {
-    border: 1px solid #e5e5e5;
-    border-radius: 10px;
-    padding: 8px 10px;
-    font-size: 14px;
-}
-
-.row2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.actions {
-    margin-top: 12px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.btn {
-    border: 1px solid #e5e5e5;
-    border-radius: 10px;
-    padding: 8px 12px;
-    cursor: pointer;
-    background: #f8f8f8;
-}
-
-.btn:hover {
-    background: #f1f1f1;
-}
-
-.btn.primary {
-    background: #111;
-    color: #fff;
-    border-color: #111;
-}
-
-.btn.ghost {
-    background: #fff;
-}
-
-.side {
-    position: sticky;
-    top: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.line {
-    display: flex;
-    justify-content: space-between;
-}
-</style>
