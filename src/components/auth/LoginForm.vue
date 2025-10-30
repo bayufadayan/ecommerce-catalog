@@ -1,37 +1,3 @@
-<template>
-    <form @submit.prevent="onSubmit" novalidate>
-        <div class="field">
-            <label for="username">Username</label>
-            <input id="username" v-model.trim="form.username" type="text" placeholder="username" autocomplete="username"
-                :disabled="loading" autofocus />
-        </div>
-
-        <div class="field">
-            <label for="password">Password</label>
-            <div class="pw">
-                <input id="password" v-model="form.password" :type="showPassword ? 'text' : 'password'"
-                    placeholder="password" autocomplete="current-password" :disabled="loading" />
-                <button type="button" class="toggle" @click="showPassword = !showPassword" :disabled="loading">
-                    {{ showPassword ? 'Hide' : 'Show' }}
-                </button>
-            </div>
-        </div>
-
-        <button class="btn" type="submit" :disabled="disabled">
-            <span v-if="loading">Loading…</span>
-            <span v-else>Login</span>
-        </button>
-
-        <p v-if="error" class="error" aria-live="polite" style="margin-top:8px;">{{ error }}</p>
-
-        <!-- hint opsional untuk tester -->
-        <details class="hint" style="margin-top:8px;">
-            <summary>Credential contoh</summary>
-            <code>mor_2314 / 83r5^_</code>
-        </details>
-    </form>
-</template>
-
 <script>
 export default {
     name: 'LoginForm',
@@ -42,7 +8,13 @@ export default {
     data() {
         return {
             form: { username: '', password: '' },
-            showPassword: false
+            showPassword: false,
+            credOpen: false,
+            demo: {
+                username: 'mor_2314',
+                password: '83r5^_'
+            },
+            localToast: { show: false, message: '', timer: null }
         }
     },
     computed: {
@@ -54,52 +26,134 @@ export default {
         onSubmit() {
             if (this.disabled) return
             this.$emit('submit', { ...this.form })
+        },
+        toggleCred() {
+            this.credOpen = !this.credOpen
+        },
+        closeCredOnOutside(e) {
+            if (!this.credOpen) return
+            const el = this.$refs.cred
+            if (el && !el.contains(e.target)) this.credOpen = false
+        },
+        async copyAndToast(text, message) {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text)
+                } else {
+                    const ta = document.createElement('textarea')
+                    ta.value = text
+                    ta.setAttribute('readonly', '')
+                    ta.style.position = 'absolute'
+                    ta.style.left = '-9999px'
+                    document.body.appendChild(ta)
+                    ta.select()
+                    document.execCommand('copy')
+                    document.body.removeChild(ta)
+                }
+                const globalToast = this.$root?.$children?.[0]?.$refs?.toast
+                if (globalToast?.show) {
+                    globalToast.show(message, 1200)
+                } else {
+                    this.showLocalToast(message)
+                }
+            } catch {
+                this.showLocalToast('Gagal menyalin')
+            }
+        },
+        showLocalToast(msg) {
+            clearTimeout(this.localToast.timer)
+            this.localToast.message = msg
+            this.localToast.show = true
+            this.localToast.timer = setTimeout(() => {
+                this.localToast.show = false
+            }, 1300)
         }
+    },
+    mounted() {
+        document.addEventListener('click', this.closeCredOnOutside)
+    },
+    beforeDestroy() {
+        document.removeEventListener('click', this.closeCredOnOutside)
+        clearTimeout(this.localToast.timer)
     }
 }
 </script>
 
-<style scoped>
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 10px;
-}
+<template>
+    <form class="form" @submit.prevent="onSubmit" novalidate>
+        <!-- Error global -->
+        <div v-if="error" class="alert alert--error" role="alert" aria-live="polite">
+            {{ error }}
+        </div>
 
-.pw {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
+        <!-- Username -->
+        <div class="field">
+            <label class="label" for="username">Username</label>
+            <input id="username" v-model.trim="form.username" class="input" type="text" placeholder="username"
+                autocomplete="username" :disabled="loading" autofocus />
+        </div>
 
-.pw input {
-    flex: 1;
-}
+        <!-- Password -->
+        <div class="field">
+            <label class="label" for="password">Password</label>
+            <div class="pw">
+                <input id="password" v-model="form.password" class="input pw__input"
+                    :type="showPassword ? 'text' : 'password'" placeholder="password" autocomplete="current-password"
+                    :disabled="loading" />
+                <button type="button" class="pw__toggle" @click="showPassword = !showPassword" :disabled="loading"
+                    :aria-pressed="showPassword ? 'true' : 'false'">
+                    {{ showPassword ? 'Hide' : 'Show' }}
+                </button>
+            </div>
+        </div>
 
-.toggle {
-    background: #f3f3f3;
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    padding: 6px 10px;
-    cursor: pointer;
-}
+        <!-- Submit -->
+        <button class="btn btn--primary" type="submit" :disabled="disabled">
+            <span v-if="loading">Loading…</span>
+            <span v-else>Login</span>
+        </button>
 
-.btn {
-    border: 1px solid #e5e5e5;
-    border-radius: 10px;
-    padding: 10px 12px;
-    cursor: pointer;
-    background: #f8f8f8;
-}
+        <!-- Credential dropdown (pengganti <details>) -->
+        <div class="cred" ref="cred">
+            <button type="button" class="cred__toggle" @click.stop="toggleCred"
+                :aria-expanded="credOpen ? 'true' : 'false'" aria-controls="cred-panel">
+                Credential contoh
+                <FaIcon :icon="credOpen ? 'chevron-down' : 'chevron-down'" class="cred__caret" />
+            </button>
 
-.btn:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-}
+            <div v-show="credOpen" id="cred-panel" class="cred__panel" role="region" aria-label="Contoh credential">
+                <!-- Username row -->
+                <div class="cred__row">
+                    <div class="cred__label">Username</div>
+                    <div class="cred__value">
+                        <code>{{ demo.username }}</code>
+                        <button type="button" class="cred__copy"
+                            @click="copyAndToast(demo.username, 'Username disalin')"
+                            :aria-label="`Salin username ${demo.username}`">
+                            <FaIcon icon="copy" class="cred__copy-icon" />
+                            Copy
+                        </button>
+                    </div>
+                </div>
+                <!-- Password row -->
+                <div class="cred__row">
+                    <div class="cred__label">Password</div>
+                    <div class="cred__value">
+                        <code>{{ demo.password }}</code>
+                        <button type="button" class="cred__copy"
+                            @click="copyAndToast(demo.password, 'Password disalin')"
+                            :aria-label="`Salin password ${demo.password}`">
+                            <FaIcon icon="copy" class="cred__copy-icon" />
+                            Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-.error {
-    color: #b00020;
-    font-size: 14px;
-}
-</style>
+        <!-- Local toast fallback (jika global toast tidak ada) -->
+        <div v-if="localToast.show" class="toast-local" role="status" aria-live="polite">
+            {{ localToast.message }}
+        </div>
+    </form>
+</template>

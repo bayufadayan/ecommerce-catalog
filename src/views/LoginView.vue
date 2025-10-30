@@ -1,11 +1,3 @@
-<template>
-    <section class="container" style="max-width:420px;">
-        <h1 style="margin-bottom:12px;">Login</h1>
-        <LoginForm :loading="status === 'loading'" :error="status === 'error' ? (errorMessage || 'Login gagal') : ''"
-            @submit="handleSubmit" />
-    </section>
-</template>
-
 <script>
 import { mapState } from 'vuex'
 import LoginForm from '@/components/auth/LoginForm.vue'
@@ -41,3 +33,17 @@ export default {
     }
 }
 </script>
+
+<template>
+    <main class="auth auth--login">
+        <section class="auth__panel">
+            <header class="auth__header">
+                <h1 class="auth__title">Login</h1>
+                <p class="auth__subtitle">Masuk ke akun untuk melanjutkan</p>
+            </header>
+
+            <LoginForm :loading="status === 'loading'"
+                :error="status === 'error' ? (errorMessage || 'Login gagal') : ''" @submit="handleSubmit" />
+        </section>
+    </main>
+</template>
