@@ -1,12 +1,12 @@
 <!-- eslint-disable no-unused-vars -->
 <template>
     <section class="container">
-        <button class="linklike" @click="$router.back()">← Kembali</button>
-        <h1 style="margin:8px 0 12px;">Checkout</h1>
+        <BackButton />
+        <h1>Checkout</h1>
 
         <EmptyState v-if="items.length === 0" title="Keranjang kosong"
             description="Tambahkan produk dulu sebelum checkout.">
-            <router-link class="btn" to="/products" style="margin-top:12px;">Lihat Katalog</router-link>
+            <router-link class="btn" to="/products">Lihat Katalog</router-link>
         </EmptyState>
 
         <div v-else class="co">
@@ -93,10 +93,11 @@
 import EmptyState from '@/components/common/EmptyState.vue'
 import { mapState, mapGetters } from 'vuex'
 import { formatIDR } from '@/utils/format'
+import BackButton from '@/components/common/BackButton.vue'
 
 export default {
     name: 'CheckoutView',
-    components: { EmptyState },
+    components: { EmptyState, BackButton },
     data() {
         return {
             form: { name: '', email: '', address: '', city: '', postal: '', note: '' },
@@ -163,142 +164,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-.linklike {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    color: inherit;
-    font: inherit;
-}
-
-.co {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-}
-
-@media (min-width: 900px) {
-    .co {
-        grid-template-columns: 2fr 1.2fr;
-        align-items: start;
-    }
-}
-
-.panel {
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 12px;
-    background: #fff;
-}
-
-.h2 {
-    font-size: 18px;
-    margin: 0 0 10px;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 10px;
-}
-
-.field input,
-.field textarea {
-    border: 1px solid #e5e5e5;
-    border-radius: 10px;
-    padding: 8px 10px;
-    font-size: 14px;
-}
-
-.row2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.err {
-    color: #b00020;
-    font-size: 12px;
-}
-
-.summary {
-    position: sticky;
-    top: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.items {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 10px;
-    max-height: 360px;
-    overflow: auto;
-}
-
-.it {
-    display: grid;
-    grid-template-columns: 60px 1fr auto;
-    gap: 10px;
-    align-items: center;
-}
-
-.it img {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-    background: #fafafa;
-    border-radius: 10px;
-}
-
-.it .title {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 1.35;
-}
-
-.it .desc {
-    font-size: 13px;
-    color: #666;
-}
-
-.it .sub {
-    font-weight: 800;
-}
-
-.line {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.line.total {
-    border-top: 1px dashed #e5e5e5;
-    padding-top: 8px;
-}
-
-.btn {
-    border: 1px solid #e5e5e5;
-    border-radius: 10px;
-    padding: 10px 12px;
-    cursor: pointer;
-    background: #f8f8f8;
-}
-
-.btn:hover {
-    background: #f1f1f1;
-}
-
-.btn.primary {
-    background: #111;
-    color: #fff;
-    border-color: #111;
-}
-</style>
