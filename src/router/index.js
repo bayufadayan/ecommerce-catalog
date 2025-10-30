@@ -31,7 +31,8 @@ const router = new VueRouter({
     },
     {
       path: '/checkout',
-      component: CheckoutView
+      component: CheckoutView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/profile',
@@ -62,6 +63,5 @@ router.beforeEach((to, from, next) => {
 
   return next()
 })
-
 
 export default router
