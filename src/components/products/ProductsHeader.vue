@@ -13,8 +13,8 @@
         <!-- Search -->
         <label class="row">
             <span class="lbl">Cari</span>
-            <input class="ctl" type="search" :value="valueQuery" placeholder="cari judul / deskripsi…"
-                @input="onQuery($event.target.value)" />
+            <input class="ctl" type="search" :value="localQuery" placeholder="cari judul / deskripsi…"
+                @input="onQueryInput($event.target.value)" />
         </label>
 
         <!-- Sort -->
@@ -38,26 +38,41 @@ import { SORT_OPTIONS } from '@/constants/products-filters'
 export default {
     name: 'ProductsHeader',
     props: {
-        categories: { type: Array, default: () => ['all'] },   // ex: ['all','electronics','jewelery',...]
-        valueCategory: { type: String, default: 'all' },       // v-model:category
-        valueQuery: { type: String, default: '' },             // v-model:query
-        valueSortBy: { type: String, default: 'relevance' }    // v-model:sortBy
+        categories: { type: Array, default: () => ['all'] },
+        valueCategory: { type: String, default: 'all' },
+        valueQuery: { type: String, default: '' },
+        valueSortBy: { type: String, default: 'relevance' },
+        debounceMs: { type: Number, default: 300 }   // ← baru
     },
     data() {
-        return { sortOptions: SORT_OPTIONS }
+        return {
+            sortOptions: SORT_OPTIONS,
+            localQuery: this.valueQuery,  // ← buffer lokal untuk debounce
+            t: null
+        }
+    },
+    watch: {
+        // sinkronkan jika parent mengubah query (mis. reset)
+        valueQuery(v) { this.localQuery = v }
     },
     methods: {
         onCategory(v) { this.$emit('update:category', v) },
-        onQuery(v) { this.$emit('update:query', v) },
+        onQueryInput(v) {
+            this.localQuery = v
+            clearTimeout(this.t)
+            this.t = setTimeout(() => {
+                this.$emit('update:query', this.localQuery)
+            }, this.debounceMs)
+        },
         onSortBy(v) { this.$emit('update:sortBy', v) },
         labelize(s) {
             if (!s) return ''
             if (s === 'all') return 'All'
-            // ubah 'men\'s clothing' → "Men’s clothing", 'electronics' → 'Electronics'
             const t = String(s).replace(/_/g, ' ')
             return t.charAt(0).toUpperCase() + t.slice(1)
         }
-    }
+    },
+    beforeDestroy() { clearTimeout(this.t) }
 }
 </script>
 
