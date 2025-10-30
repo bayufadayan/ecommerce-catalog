@@ -1,82 +1,91 @@
-import { login as apiLogin } from '../../api/auth';
-import { FK_TOKEN_KEY } from '../auth.keys';
+import { login as apiLogin } from '@/api/auth';
+import { FK_TOKEN_KEY } from '@/store/auth.keys';
 
 const state = () => ({
     token: null,
     user: null,
-    status: 'idle',
+    status: 'idle', // idle | loading | success | error
     errorMessage: ''
-})
+});
 
 const getters = {
-    isAuthenticated: (s) => !!s.token
-}
+    // Cek apakah user sudah login (punya token)
+    isAuthenticated: (state) => !!state.token,
+    getUser: (state) => state.user,
+    getStatus: (state) => state.status,
+    getErrorMessage: (state) => state.errorMessage
+};
 
 const mutations = {
     setToken(state, token) {
-        state.token = token
+        state.token = token;
     },
     setUser(state, user) {
-        state.user = user
+        state.user = user;
     },
     setStatus(state, status) {
-        state.status = status
+        state.status = status;
     },
     setErrorMessage(state, msg) {
-        state.errorMessage = msg || ''
+        state.errorMessage = msg || '';
     },
     clearAuth(state) {
-        state.token = null
-        state.user = null
-        state.status = 'idle'
-        state.errorMessage = ''
+        state.token = null;
+        state.user = null;
+        state.status = 'idle';
+        state.errorMessage = '';
     }
-}
+};
 
 const actions = {
     async login({ commit }, { username, password }) {
         if (!username || !password) {
-            commit('setStatus', 'error')
-            commit('setErrorMessage', 'Username dan password wajib diisi.')
-            return
+            commit('setStatus', 'error');
+            commit('setErrorMessage', 'Username dan password wajib diisi.');
+            return;
         }
 
-        commit('setStatus', 'loading')
-        commit('setErrorMessage', '')
+        commit('setStatus', 'loading');
+        commit('setErrorMessage', '');
 
         try {
-            const { token } = await apiLogin({ username, password })
-            if (!token) throw new Error('Token tidak ditemukan dalam respons.')
+            const { token } = await apiLogin({ username, password });
+            if (!token) throw new Error('Token tidak ditemukan dalam respons.');
 
-            commit('setToken', token)
-            commit('setStatus', 'success')
+            // Simpan token ke state dan localStorage
+            commit('setToken', token);
+            commit('setStatus', 'success');
+            localStorage.setItem(FK_TOKEN_KEY, token);
 
-            localStorage.setItem(FK_TOKEN_KEY, token)
-
-            return token
+            return token;
         } catch (err) {
             // Axios interceptor memformat message jadi "HTTP <status>" utk error HTTP.
-            const raw = err?.message || ''
-            let msg = 'Username atau password tidak sesuai.'
+            const raw = err?.message || '';
+            let msg = 'Username atau password tidak sesuai.';
 
             if (raw.includes('HTTP 401')) {
-                msg = 'Username atau password tidak sesuai.'
+                msg = 'Username atau password tidak sesuai.';
             } else if (raw.includes('HTTP 5')) {
-                msg = 'Server sedang bermasalah. Coba beberapa saat lagi.'
+                msg = 'Server sedang bermasalah. Coba beberapa saat lagi.';
             } else if (raw.toLowerCase().includes('network')) {
-                msg = 'Gagal terhubung ke server. Periksa koneksi internet Anda.'
+                msg = 'Gagal terhubung ke server. Periksa koneksi internet Anda.';
             }
 
-            commit('setStatus', 'error')
-            commit('setErrorMessage', msg)
+            commit('setStatus', 'error');
+            commit('setErrorMessage', msg);
         }
     },
 
     logout({ commit }) {
-        commit('clearAuth')
-        // CLEAR PERSIST
-        localStorage.removeItem(FK_TOKEN_KEY)
+        commit('clearAuth');
+        localStorage.removeItem(FK_TOKEN_KEY);
     }
-}
+};
 
-export default { namespaced: true, state, getters, actions, mutations }
+export default {
+    namespaced: true,
+    state,
+    getters,
+    actions,
+    mutations
+};

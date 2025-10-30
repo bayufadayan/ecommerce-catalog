@@ -1,147 +1,104 @@
-// src/store/modules/products.js
-import {
-    listProducts,
-    listCategories,
-    listByCategory
-} from '@/api/products'
-
-const FILTERS_KEY = 'fakestore_products_filters_v1'
+import { getUserById } from '@/api/users';
+import { getUserIdFromToken } from '@/utils/jwt';
 
 const state = () => ({
-    items: [],
-    categories: ['all'],
+    data: null,
     loading: false,
     error: '',
-    // filters persist
-    filters: loadFilters() // { query:'', category:'all', sortBy:'relevance'|'price-asc'|'price-desc'|'rating-desc' }
-})
+});
 
 const getters = {
-    categoriesWithAll: (s) => Array.from(new Set(['all', ...s.categories])),
-    // hasil akhir di client (karena fakestore gak support query server)
-    filteredSorted: (s) => {
-        let arr = [...s.items]
+    isLoaded: (state) => !!state.data && !state.loading && !state.error,
 
-        // filter by category (server fetch jika bukan "all", tapi jaga-jaga kalau items full cache dipakai)
-        if (s.filters.category && s.filters.category !== 'all') {
-            arr = arr.filter(p => String(p.category) === String(s.filters.category))
-        }
+    fullName: (state) => {
+        const first = state.data?.name?.firstname || '';
+        const last = state.data?.name?.lastname || '';
+        return `${capitalize(first)} ${capitalize(last)}`.trim();
+    },
 
-        // query (client-side contains)
-        const q = (s.filters.query || '').trim().toLowerCase()
-        if (q) {
-            arr = arr.filter(p => {
-                const hay = [p.title, p.description, p.category].join(' ').toLowerCase()
-                return hay.includes(q)
-            })
-        }
+    email: (state) => state.data?.email || '',
+    username: (state) => state.data?.username || '',
+    phone: (state) => state.data?.phone || '',
 
-        // sorting
-        switch (s.filters.sortBy) {
-            case 'price-asc': arr.sort((a, b) => num(a.price) - num(b.price)); break
-            case 'price-desc': arr.sort((a, b) => num(b.price) - num(a.price)); break
-            case 'rating-desc': arr.sort((a, b) => num(b.rating?.rate) - num(a.rating?.rate)); break
-            default: /* relevance (no-op) */ break
-        }
+    addressLine: (state) => {
+        const address = state.data?.address;
+        if (!address) return '';
+        const parts = [address.street, address.city, address.zipcode].filter(Boolean);
+        return parts.join(', ');
+    },
 
-        return arr
-    }
-}
+    geo: (state) => state.data?.address?.geolocation || null,
+};
 
 const mutations = {
-    setLoading(s, v) { s.loading = !!v },
-    setError(s, msg) { s.error = msg || '' },
-    setItems(s, items) { s.items = Array.isArray(items) ? items : [] },
-    setCategories(s, cats) {
-        const base = Array.isArray(cats) ? cats : []
-        s.categories = ['all', ...base.filter(Boolean)]
+    setLoading(state, value) {
+        state.loading = !!value;
     },
-    setQuery(s, v) {
-        s.filters.query = String(v || '')
-        saveFilters(s.filters)
+    setError(state, message) {
+        state.error = message || '';
     },
-    setCategory(s, v) {
-        s.filters.category = v || 'all'
-        saveFilters(s.filters)
+    setData(state, data) {
+        state.data = data || null;
     },
-    setSortBy(s, v) {
-        s.filters.sortBy = v || 'relevance'
-        saveFilters(s.filters)
+    clear(state) {
+        state.data = null;
+        state.error = '';
+        state.loading = false;
     },
-    restoreFilters(s) {
-        const f = loadFilters()
-        s.filters = { ...s.filters, ...f }
-    }
-}
+};
 
 const actions = {
-    // eslint-disable-next-line no-unused-vars
-    async bootstrap({ dispatch, commit }) {
-        // muat kategori di awal (untuk chips)
-        try {
-            commit('setLoading', true)
-            commit('setError', '')
-            const cats = await listCategories()
-            commit('setCategories', cats || [])
-        } catch (e) {
-            commit('setError', e?.message || 'Gagal memuat kategori.')
-        } finally {
-            commit('setLoading', false)
-        }
-    },
+    /**
+     * fetchMe:
+     * - Jika userId tidak diberikan, coba ambil dari token auth di store
+     * - Ambil /users/:id dan simpan di state
+     */
+    async fetchMe({ commit, rootState }, userId) {
+        commit('setLoading', true);
+        commit('setError', '');
 
-    async fetchProducts({ state, commit }) {
-        // Ambil produk sesuai kategori:
-        // - "all" → /products (full)
-        // - spesifik → /products/category/:name (biar efisien)
         try {
-            commit('setLoading', true)
-            commit('setError', '')
-            let data = []
-            if (state.filters.category && state.filters.category !== 'all') {
-                data = await listByCategory(state.filters.category, {})
-            } else {
-                data = await listProducts({})
+            let id = userId;
+            if (!id) {
+                const token = rootState?.auth?.token;
+                id = getUserIdFromToken(token);
             }
-            commit('setItems', data || [])
-        } catch (e) {
-            const msg =
-                e?.message?.includes('HTTP 404') ? 'Produk tidak ditemukan (404).' :
-                    /network/i.test(e?.message || '') ? 'Gagal terhubung ke server.' :
-                        (e?.message || 'Gagal memuat produk.')
-            commit('setError', msg)
-            commit('setItems', [])
+
+            if (!id) throw new Error('User ID tidak ditemukan dari token.');
+
+            const data = await getUserById(id);
+            commit('setData', data || null);
+        } catch (err) {
+            const raw = err?.message || '';
+            let msg = 'Gagal memuat profil.';
+
+            if (raw.includes('HTTP 404')) {
+                msg = 'Profil tidak ditemukan (404).';
+            } else if (raw.toLowerCase().includes('network')) {
+                msg = 'Gagal terhubung ke server.';
+            }
+
+            commit('setError', msg);
+            commit('setData', null);
         } finally {
-            commit('setLoading', false)
+            commit('setLoading', false);
         }
     },
 
-    setQuery({ commit }, v) { commit('setQuery', v) },
-    setCategory({ commit, dispatch }, v) {
-        commit('setCategory', v)
-        // fetch ulang dari server bila kategori berubah
-        dispatch('fetchProducts')
+    clear({ commit }) {
+        commit('clear');
     },
-    setSortBy({ commit }, v) { commit('setSortBy', v) }
+};
+
+function capitalize(str) {
+    if (!str) return '';
+    return String(str).charAt(0).toUpperCase() + String(str).slice(1);
 }
 
-// helpers
-function num(v) { return Number(v) || 0 }
-
-function loadFilters() {
-    try {
-        const raw = localStorage.getItem(FILTERS_KEY)
-        const def = { query: '', category: 'all', sortBy: 'relevance' }
-        if (!raw) return def
-        const f = JSON.parse(raw)
-        return { ...def, ...f }
-    } catch {
-        return { query: '', category: 'all', sortBy: 'relevance' }
-    }
-}
-
-function saveFilters(f) {
-    try { localStorage.setItem(FILTERS_KEY, JSON.stringify(f || {})) } catch { /* empty */ }
-}
-
-export default { namespaced: true, state, getters, mutations, actions }
+export default {
+    namespaced: true,
+    state,
+    getters,
+    mutations,
+    actions,
+};
