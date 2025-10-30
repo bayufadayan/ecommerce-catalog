@@ -29,11 +29,11 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex'
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import ErrorBanner from '@/components/common/ErrorBanner.vue'
-import EmptyState from '@/components/common/EmptyState.vue'
-import ProductsHeader from '@/components/products/ProductsHeader.vue'
-import ProductGrid from '@/components/products/ProductGrid.vue'
+import LoadingSpinner from '../components/common/LoadingSpinner.vue'
+import ErrorBanner from '../components/common/ErrorBanner.vue'
+import EmptyState from '../components/common/EmptyState.vue'
+import ProductsHeader from '../components/products/ProductsHeader.vue'
+import ProductGrid from '../components/products/productGrid.vue'
 
 export default {
     name: 'ProductsView',
