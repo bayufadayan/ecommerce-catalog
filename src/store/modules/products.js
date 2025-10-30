@@ -13,7 +13,7 @@ const state = () => ({
 })
 
 const getters = {
-    categoriesWithAll: state => ['all', ...new Set(state.categories)],
+    categoriesWithAll: state => [...new Set(state.categories)],
 
     filteredSorted: state => {
         let products = [...state.items]

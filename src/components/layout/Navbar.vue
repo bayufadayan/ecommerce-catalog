@@ -1,51 +1,107 @@
 <template>
     <header class="nav">
         <div class="brand">
-            <router-link to="/products">FakeStore</router-link>
+            <router-link to="/products">
+                <LogoApp />
+            </router-link>
         </div>
 
         <nav class="links">
-            <router-link to="/products" exact-active-class="active">Products</router-link>
-
-            <router-link to="/cart" class="cart-link" exact-active-class="active">
-                Cart
-                <span v-if="count > 0" class="badge">{{ count }}</span>
+            <router-link to="/products" exact-active-class="active" class="products-link">
+                <FaIcon icon="box" class="icon-products" />
+                <span>Products</span>
             </router-link>
 
+            <router-link to="/cart" class="cart-link" exact-active-class="active">
+                <FaIcon icon="shopping-cart" class="icon" />
+                <span v-if="count > 0" class="badge">{{ displayCount }}</span>
+            </router-link>
+
+
             <template v-if="isAuthenticated">
-                <span v-if="greet" class="hello">Hi, {{ greet }}</span>
-                <router-link to="/profile" exact-active-class="active">Profile</router-link>
-                <button class="linklike" @click="onLogout">Logout</button>
+                <!-- USER DROPDOWN -->
+                <div class="btn profile" ref="menu">
+                    <button class="user-trigger" @click.stop="toggleMenu" @keydown.down.prevent="openMenu"
+                        @keydown.esc.prevent="closeMenu" :aria-expanded="open ? 'true' : 'false'" aria-haspopup="true">
+                        <FaIcon icon="user-circle" class="user-icon"/>
+                        <span class="hello">Hi, {{ greet || 'Account' }}</span>
+                        <span :class="{ open }">
+                            <FaIcon icon="chevron-down" class="caret" />
+                        </span>
+                    </button>
+
+                    <ul v-show="open" class="dropdown" role="menu">
+                        <li role="none">
+                            <router-link to="/profile" role="menuitem" @click.native="closeMenu">
+                                Profile
+                            </router-link>
+                        </li>
+                        <li role="none">
+                            <button class="linklike" role="menuitem" @click="onLogoutAndClose">
+                                Logout
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </template>
+
             <template v-else>
-                <router-link to="/login" exact-active-class="active">Login</router-link>
+                <router-link to="/login" exact-active-class="active" class="btn login">Login</router-link>
             </template>
         </nav>
     </header>
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex';
+import LogoApp from '@/components/common/LogoApp.vue';
 
 export default {
     name: 'NavbarView',
+    components: { LogoApp },
+    data() {
+        return { open: false }
+    },
     computed: {
         ...mapGetters('auth', ['isAuthenticated']),
         ...mapGetters('cart', ['count']),
         ...mapState('profile', ['data', 'loading']),
-        // Greeting opsional: pakai firstname kalau profile sudah ada & bukan loading
+        // salam pakai firstname (opsional)
         greet() {
             if (this.loading) return ''
-            const f = this.data?.name?.firstname
+            const f = this.data && this.data.name && this.data.name.firstname
             return f ? (String(f).charAt(0).toUpperCase() + String(f).slice(1)) : ''
+        },
+        displayCount() {
+            return this.count > 9 ? '9+' : String(this.count)
         }
     },
     methods: {
+        toggleMenu() { this.open = !this.open },
+        openMenu() { this.open = true },
+        closeMenu() { this.open = false },
+        handleOutside(e) {
+            if (!this.open) return
+            const el = this.$refs.menu
+            if (el && !el.contains(e.target)) this.closeMenu()
+        },
+        onLogoutAndClose() {
+            this.closeMenu()
+            this.onLogout()
+        },
         onLogout() {
             this.$store.dispatch('auth/logout')
             this.$router.replace('/login')
-            this.$root?.$children?.[0]?.$refs?.toast?.show?.('Logout berhasil', 1500)
+            this.$root && this.$root.$children && this.$root.$children[0] &&
+                this.$root.$children[0].$refs && this.$root.$children[0].$refs.toast &&
+                this.$root.$children[0].$refs.toast.show && this.$root.$children[0].$refs.toast.show('Logout berhasil', 1500)
         }
+    },
+    mounted() {
+        document.addEventListener('click', this.handleOutside)
+    },
+    beforeDestroy() {
+        document.removeEventListener('click', this.handleOutside)
     }
 }
 </script>
@@ -65,8 +121,22 @@ export default {
 
 .links {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     align-items: center;
+}
+
+.products-link {
+    background-color: #def9fd;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100px;
+    padding: 6px 16px;
+}
+
+.icon-products {
+    font-size: 16px;
 }
 
 .brand a {
@@ -76,22 +146,37 @@ export default {
 
 .cart-link {
     position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cart-link .icon {
+    font-size: 20px;
 }
 
 .badge {
     position: absolute;
-    top: -6px;
-    right: -10px;
-    display: inline-block;
+    top: -8px;
+    right: -6px;
     min-width: 18px;
-    padding: 2px 6px;
+    width: fit-content;
+    height: 18px;
+    padding-inline: 2px;
+    border-radius: 10px;
+    display: grid;
     font-size: 11px;
-    line-height: 1;
-    border-radius: 999px;
-    background: #111;
+    font-weight: 500;
+    line-height: normal;
     color: #fff;
-    text-align: center;
+    background: #ef4444;
+    border: 2px solid #fff;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
 
 .linklike {
     background: none;
@@ -101,11 +186,83 @@ export default {
     color: inherit;
 }
 
+.user-menu {
+    position: relative;
+}
+
+.user-trigger {
+    display: flex;
+    align-items: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    color: white;
+    font-weight: 600;
+    gap: 10px;
+}
+
 .hello {
-    color: #666;
-    font-size: 13px;
-    background: #f3f3f3;
-    padding: 4px 8px;
-    border-radius: 999px;
+    line-height: normal;
+}
+
+.caret {
+    transition: transform .15s ease;
+}
+
+.caret.open {
+    transform: rotate(180deg);
+}
+
+.dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    min-width: 160px;
+    background: #fff;
+    border: 1px solid #e6eaf0;
+    border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(15, 39, 66, .12);
+    padding: 6px;
+    list-style: none;
+    margin: 0;
+    z-index: 50;
+}
+
+.dropdown li>a,
+.dropdown li>.linklike {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #2c2c2c;
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown li>a:hover,
+.dropdown li>.linklike:hover {
+    background: #f3f6fb;
+}
+
+.icon {
+    font-size: 20px;
+    vertical-align: middle;
+}
+
+.login {
+    margin-left: 10px;
+}
+
+.profile {
+    padding-inline: 8px;
+}
+
+.user-icon {
+    font-size: 19px;
 }
 </style>
