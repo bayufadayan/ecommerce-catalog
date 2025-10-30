@@ -1,146 +1,142 @@
-// src/store/modules/products.js
-import {
-    listProducts,
-    listCategories,
-    listByCategory
-} from '@/api/products'
+import { listProducts, listCategories, listByCategory } from '@/api/products';
+import { toNumber } from '@/helpers/numberHelper';
+import { loadFilters, saveFilters } from '@/helpers/filterHelper';
+import { getErrorMessage } from '@/helpers/errorHelper';
 
-const FILTERS_KEY = 'fakestore_products_filters_v1'
 
 const state = () => ({
     items: [],
     categories: ['all'],
     loading: false,
-    error: '',
-    // filters persist
-    filters: loadFilters() // { query:'', category:'all', sortBy:'relevance'|'price-asc'|'price-desc'|'rating-desc' }
+    errorMessage: '',
+    filters: loadFilters()
 })
 
 const getters = {
-    categoriesWithAll: (s) => Array.from(new Set(['all', ...s.categories])),
-    // hasil akhir di client (karena fakestore gak support query server)
-    filteredSorted: (s) => {
-        let arr = [...s.items]
+    categoriesWithAll: state => ['all', ...new Set(state.categories)],
 
-        // filter by category (server fetch jika bukan "all", tapi jaga-jaga kalau items full cache dipakai)
-        if (s.filters.category && s.filters.category !== 'all') {
-            arr = arr.filter(p => String(p.category) === String(s.filters.category))
+    filteredSorted: state => {
+        let products = [...state.items]
+
+        // filter by category
+        if (state.filters.category !== 'all') {
+            products = products.filter(
+                product => String(product.category) === String(state.filters.category)
+            )
         }
 
-        // query (client-side contains)
-        const q = (s.filters.query || '').trim().toLowerCase()
-        if (q) {
-            arr = arr.filter(p => {
-                const hay = [p.title, p.description, p.category].join(' ').toLowerCase()
-                return hay.includes(q)
+        // filter by search query
+        const query = (state.filters.query || '').trim().toLowerCase()
+        if (query) {
+            products = products.filter(product => {
+                const text = [product.title, product.description, product.category]
+                    .join(' ')
+                    .toLowerCase()
+                return text.includes(query)
             })
         }
 
-        // sorting
-        switch (s.filters.sortBy) {
-            case 'price-asc': arr.sort((a, b) => num(a.price) - num(b.price)); break
-            case 'price-desc': arr.sort((a, b) => num(b.price) - num(a.price)); break
-            case 'rating-desc': arr.sort((a, b) => num(b.rating?.rate) - num(a.rating?.rate)); break
-            default: /* relevance (no-op) */ break
+        const sortBy = state.filters.sortBy
+        const sorters = {
+            'price-asc': (a, b) => toNumber(a.price) - toNumber(b.price),
+            'price-desc': (a, b) => toNumber(b.price) - toNumber(a.price),
+            'rating-desc': (a, b) => toNumber(b.rating?.rate) - toNumber(a.rating?.rate)
         }
 
-        return arr
+        if (sorters[sortBy]) products.sort(sorters[sortBy])
+
+        return products
     }
 }
 
 const mutations = {
-    setLoading(s, v) { s.loading = !!v },
-    setError(s, msg) { s.error = msg || '' },
-    setItems(s, items) { s.items = Array.isArray(items) ? items : [] },
-    setCategories(s, cats) {
-        const base = Array.isArray(cats) ? cats : []
-        s.categories = ['all', ...base.filter(Boolean)]
+    setLoading(state, isLoading) {
+        state.loading = !!isLoading
     },
-    setQuery(s, v) {
-        s.filters.query = String(v || '')
-        saveFilters(s.filters)
+
+    setError(state, message = '') {
+        state.errorMessage = message
     },
-    setCategory(s, v) {
-        s.filters.category = v || 'all'
-        saveFilters(s.filters)
+
+    setItems(state, items) {
+        state.items = Array.isArray(items) ? items : []
     },
-    setSortBy(s, v) {
-        s.filters.sortBy = v || 'relevance'
-        saveFilters(s.filters)
+
+    setCategories(state, categories) {
+        const validCategories = Array.isArray(categories) ? categories.filter(Boolean) : []
+        state.categories = ['all', ...validCategories]
     },
-    restoreFilters(s) {
-        const f = loadFilters()
-        s.filters = { ...s.filters, ...f }
+
+    setQuery(state, query) {
+        state.filters.query = String(query || '')
+        saveFilters(state.filters)
+    },
+
+    setCategory(state, category) {
+        state.filters.category = category || 'all'
+        saveFilters(state.filters)
+    },
+
+    setSortBy(state, sortBy) {
+        state.filters.sortBy = sortBy || 'relevance'
+        saveFilters(state.filters)
+    },
+
+    restoreFilters(state) {
+        const restoredFilters = loadFilters()
+        state.filters = { ...state.filters, ...restoredFilters }
     }
 }
 
 const actions = {
     async bootstrap({ commit }) {
-        // muat kategori di awal (untuk chips)
         try {
             commit('setLoading', true)
             commit('setError', '')
-            const cats = await listCategories()
-            commit('setCategories', cats || [])
-        } catch (e) {
-            commit('setError', e?.message || 'Gagal memuat kategori.')
+            const categories = await listCategories()
+            commit('setCategories', categories || [])
+        } catch (error) {
+            commit('setError', error?.message || 'Gagal memuat kategori.')
         } finally {
             commit('setLoading', false)
         }
     },
 
     async fetchProducts({ state, commit }) {
-        // Ambil produk sesuai kategori:
-        // - "all" → /products (full)
-        // - spesifik → /products/category/:name (biar efisien)
+        if (state.items.length && state.filters.category !== 'all') return
+
         try {
             commit('setLoading', true)
             commit('setError', '')
-            let data = []
-            if (state.filters.category && state.filters.category !== 'all') {
-                data = await listByCategory(state.filters.category, {})
-            } else {
-                data = await listProducts({})
-            }
-            commit('setItems', data || [])
-        } catch (e) {
-            const msg =
-                e?.message?.includes('HTTP 404') ? 'Produk tidak ditemukan (404).' :
-                    /network/i.test(e?.message || '') ? 'Gagal terhubung ke server.' :
-                        (e?.message || 'Gagal memuat produk.')
-            commit('setError', msg)
+
+            const { category } = state.filters
+            const products =
+                category !== 'all'
+                    ? await listByCategory(category)
+                    : await listProducts()
+
+            commit('setItems', products || [])
+        } catch (error) {
+            const message = getErrorMessage(error)
+            commit('setError', message)
             commit('setItems', [])
         } finally {
             commit('setLoading', false)
         }
     },
 
-    setQuery({ commit }, v) { commit('setQuery', v) },
-    setCategory({ commit, dispatch }, v) {
-        commit('setCategory', v)
-        // fetch ulang dari server bila kategori berubah
+    setQuery({ commit }, query) {
+        commit('setQuery', query)
+    },
+
+    setCategory({ commit, dispatch }, category) {
+        commit('setCategory', category)
         dispatch('fetchProducts')
     },
-    setSortBy({ commit }, v) { commit('setSortBy', v) }
-}
 
-// helpers
-function num(v) { return Number(v) || 0 }
-
-function loadFilters() {
-    try {
-        const raw = localStorage.getItem(FILTERS_KEY)
-        const def = { query: '', category: 'all', sortBy: 'relevance' }
-        if (!raw) return def
-        const f = JSON.parse(raw)
-        return { ...def, ...f }
-    } catch {
-        return { query: '', category: 'all', sortBy: 'relevance' }
+    setSortBy({ commit }, sortBy) {
+        commit('setSortBy', sortBy)
     }
-}
-
-function saveFilters(f) {
-    try { localStorage.setItem(FILTERS_KEY, JSON.stringify(f || {})) } catch { /* empty */ }
 }
 
 export default { namespaced: true, state, getters, mutations, actions }

@@ -1,0 +1,1 @@
+export const FILTERS_KEY = 'fakestore_products_filters_v1';
