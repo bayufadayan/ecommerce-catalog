@@ -4,7 +4,7 @@
 
         <section class="container-product-detail">
             <ErrorBanner v-if="error" :message="error" @retry="retry" />
-            <LoadingSpinner v-else-if="loading" />
+            <SkeletonProductDetail v-else-if="loading" />
 
             <!-- Jika product null (karena kategori tidak diizinkan ATAU ID invalid) -->
             <ProductUnavailableCard v-else-if="!product" :current-id="currentId" />
@@ -74,17 +74,15 @@
 </template>
 
 <script>
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import ErrorBanner from '@/components/common/ErrorBanner.vue'
-import ProductUnavailableCard from '@/components/products/ProductUnavailableCard.vue'
+import ErrorBanner from '@/components/common/ErrorBanner.vue';
+import ProductUnavailableCard from '@/components/products/ProductUnavailableCard.vue';
+import SkeletonProductDetail from '@/components/products/SkeletonProductDetail.vue';
 import { getProduct } from '@/api/products'
-
-// === NEW: gunakan util allowed categories (Step 1) ===
 import { isAllowedCategory } from '@/constants/allowed-categories'
 
 export default {
     name: 'ProductDetailView',
-    components: { LoadingSpinner, ErrorBanner, ProductUnavailableCard },
+    components: { ErrorBanner, ProductUnavailableCard, SkeletonProductDetail },
 
     data() {
         return {
@@ -97,7 +95,6 @@ export default {
     },
 
     computed: {
-        // ID saat ini (1..20)
         currentId() {
             const id = Number(this.$route.params.id)
             return Number.isFinite(id) && id > 0 ? id : 1
