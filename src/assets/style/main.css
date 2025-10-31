@@ -1488,8 +1488,8 @@
   }
 
   .card-unavailable {
-    margin-top: 100px;
-
+    margin-top: 70px;
+    height: 400px;
   }
 
   /* Scrollbar lebih halus & tipis di mobile */
