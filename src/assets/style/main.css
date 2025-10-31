@@ -1235,22 +1235,23 @@
 
   .links {
     position: fixed;
+    display: flex;
     top: 60px;
     left: 0;
     right: 0;
     background: var(--color-neutral-50);
     padding: 16px;
-    flex-direction: column;
-    align-items: stretch;
     gap: 12px;
     border-bottom: 1px solid var(--color-border);
     transform: translateY(-100%);
     opacity: 0;
     transition: all 0.3s ease;
     visibility: hidden;
+    justify-content: space-between;
   }
 
   .links.open {
+    display: flex;
     transform: translateY(0);
     opacity: 1;
     visibility: visible;
@@ -1258,10 +1259,12 @@
 
   .products-link {
     justify-content: flex-start;
+    width: fit-content;
   }
 
   .cart-link {
     justify-content: flex-start;
+    width: fit-content;
   }
 
   .mobile-menu-toggle {
@@ -1282,16 +1285,15 @@
   }
 
   .profile {
-    width: 100%;
+    width: fit-content;
     padding: 0;
   }
 
   .user-trigger {
-    width: 100%;
-    justify-content: space-between;
+    width: fit-content;
+    /* justify-content: space-between; */
     padding: 8px 12px;
     border-radius: 8px;
-    background: var(--color-primary-light);
   }
 
   .dropdown {
