@@ -1061,6 +1061,17 @@
   gap: 10px;
 }
 
+.cart-btn {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding-block: 4px;
+  letter-spacing: .2px;
+  cursor: pointer;
+}
+
 .pd-btn {
   height: 40px;
   padding: 0 16px;
@@ -1303,6 +1314,197 @@
     display: none;
   }
 }
+
+/* ≤ 768px */
+@media (max-width: 768px) {
+  .product-detail {
+    margin-top: 0;
+    align-items: stretch;
+  }
+
+  .container-product-detail {
+    min-height: auto;
+    padding: 16px;
+    align-items: stretch;
+  }
+
+  .pd-hero {
+    height: 36vh;
+  }
+
+  .pd-card {
+    flex-direction: column;
+    gap: 12px;
+    max-width: 100%;
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
+    padding: 12px;
+    /* ruang napas */
+  }
+
+  /* MEDIA */
+  .pd-media {
+    flex: 0 0 auto;
+  }
+
+  .pd-media-box {
+    height: 280px;
+  }
+
+  .pd-media-box img {
+    object-fit: contain;
+    /* hindari crop berlebih di mobile */
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  /* INFO */
+  .pd-info {
+    height: auto;
+    /* jangan fixed height */
+    min-height: 0;
+    padding: 8px 4px 0;
+    overflow: visible;
+    /* scroll hanya pada desc */
+  }
+
+  .pd-top-content {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .pd-title {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+
+  .pd-sub {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .pd-rating {
+    font-size: 13px;
+    gap: 6px;
+  }
+
+  .pd-rating-dots {
+    gap: 5px;
+  }
+
+  .pd-rating-dots li {
+    width: 10px;
+    height: 10px;
+  }
+
+  .pd-desc {
+    max-height: 160px;
+    /* biar tidak kepanjangan */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 6px;
+  }
+
+  .pd-sep {
+    margin: 10px 0 12px;
+  }
+
+  .pd-price-row {
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .pd-price {
+    font-size: 20px;
+  }
+
+  .pd-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pd-btn {
+    font-size: 16px;
+    padding: 8px;
+  }
+
+  /* Unavailable state */
+  .unavailable-product-container {
+    flex-direction: column;
+    padding: 20px;
+    gap: 12px;
+  }
+
+  .unavailable-product-container figure {
+    height: 220px;
+  }
+
+  .unavailable-product-container figure img {
+    padding-left: 0;
+    width: 70%;
+    height: 100%;
+    object-fit: contain;
+    max-width: 320px;
+  }
+
+  .unavailable-product-container .unavailable-content {
+    position: static;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .unavailable-btn {
+    width: 100%;
+  }
+
+  /* Scrollbar lebih halus & tipis di mobile */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pd-hero {
+    height: 30vh;
+  }
+
+  .pd-card {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .pd-media-box {
+    height: 220px;
+    border-radius: 8px;
+  }
+
+  .pd-title {
+    font-size: 20px;
+  }
+
+  .pd-price {
+    font-size: 18px;
+  }
+
+  .pd-desc {
+    max-height: 140px;
+  }
+
+  .pd-btn {
+    height: 42px;
+    font-size: 14px;
+    padding: 0 12px;
+  }
+}
+
 
 /* Utility */
 .icon {

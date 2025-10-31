@@ -46,7 +46,10 @@
                             <button class="pd-btn pd-btn--solid" :disabled="loading || adding || !product"
                                 @click="onAddToCart">
                                 <span v-if="adding">Menambahkan…</span>
-                                <span v-else>Buy now</span>
+                                <span v-else class="cart-btn">
+                                    <FaIcon icon="shopping-cart" class="icon" />
+                                    Add to Cart
+                                </span>
                             </button>
 
                             <router-link class="pd-btn pd-btn--outline" to="/products">
