@@ -7,9 +7,12 @@
 
             <div class="unavailable-content">
                 <p>This product is unavailable to show</p>
-                <router-link class="pd-btn pd-btn--outline unavailable-btn" to="/products">
+
+                <!-- Tombol Next product -->
+                <button class="pd-btn pd-btn--outline unavailable-btn" @click="goNext"
+                    :aria-label="`Next product (ID ${nextId})`">
                     Next product
-                </router-link>
+                </button>
             </div>
         </div>
     </div>
@@ -18,7 +21,25 @@
 <script>
 export default {
     name: 'ProductUnavailableCard',
+    props: {
+        currentId: {
+            type: Number,
+            required: true
+        }
+    },
+    computed: {
+        nextId() {
+            const cur = Number(this.currentId) || 1
+            return (cur % 20) + 1
+        }
+    },
+    methods: {
+        goNext() {
+            this.$router.push(`/products/${this.nextId}`)
+        }
+    }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>

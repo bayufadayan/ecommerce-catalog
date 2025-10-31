@@ -6,8 +6,10 @@
             <ErrorBanner v-if="error" :message="error" @retry="retry" />
             <LoadingSpinner v-else-if="loading" />
 
-            <ProductUnavailableCard v-else-if="!product" />
+            <!-- Jika product null (karena kategori tidak diizinkan ATAU ID invalid) -->
+            <ProductUnavailableCard v-else-if="!product" :current-id="currentId" />
 
+            <!-- Product tersedia & allowed -->
             <div v-else class="pd-card">
                 <!-- MEDIA -->
                 <div class="pd-media">
@@ -58,9 +60,11 @@
                                 </span>
                             </button>
 
-                            <router-link class="pd-btn pd-btn--outline" to="/products">
+                            <!-- Next product: gunakan method agar logika wrap jelas -->
+                            <button class="pd-btn pd-btn--outline" :aria-label="`Next product (ID ${nextId})`"
+                                @click="nextProduct">
                                 Next product
-                            </router-link>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -75,6 +79,9 @@ import ErrorBanner from '@/components/common/ErrorBanner.vue'
 import ProductUnavailableCard from '@/components/products/ProductUnavailableCard.vue'
 import { getProduct } from '@/api/products'
 
+// === NEW: gunakan util allowed categories (Step 1) ===
+import { isAllowedCategory } from '@/constants/allowed-categories'
+
 export default {
     name: 'ProductDetailView',
     components: { LoadingSpinner, ErrorBanner, ProductUnavailableCard },
@@ -85,15 +92,28 @@ export default {
             error: '',
             product: null,
             adding: false,
-            isReadMore: false,
+            isReadMore: false
         }
     },
+
     computed: {
+        // ID saat ini (1..20)
+        currentId() {
+            const id = Number(this.$route.params.id)
+            return Number.isFinite(id) && id > 0 ? id : 1
+        },
+
+        // ID berikutnya (wrap 20 -> 1)
+        nextId() {
+            return (this.currentId % 20) + 1
+        },
+
         cartPayload() {
             if (!this.product) return null
             const { id, title, price, image } = this.product
             return { id, title, price, image, qty: 1 }
         },
+
         theme() {
             if (!this.product || !this.product.category) return 'neutral'
             const c = this.product.category.toLowerCase()
@@ -101,6 +121,7 @@ export default {
             if (c.includes('men')) return 'men'
             return 'neutral'
         },
+
         themeClass() {
             return this.theme === 'women'
                 ? 'theme-women'
@@ -108,9 +129,11 @@ export default {
                     ? 'theme-men'
                     : 'theme-neutral'
         },
+
         ratingScore() {
             return this.product?.rating?.rate || 0
         },
+
         filledDots() {
             return Math.round(Math.max(0, Math.min(5, this.ratingScore)))
         }
@@ -121,18 +144,11 @@ export default {
             if (typeof n !== 'number') return '-'
             return `$${n.toFixed(2)}`
         },
+
         humanCategory(s) {
             if (!s) return ''
             const t = String(s).replace(/_/g, ' ')
             return t.charAt(0).toUpperCase() + t.slice(1)
-        },
-
-        goBack() {
-            if (window.history.length > 1) {
-                this.$router.back()
-            } else {
-                this.$router.replace('/products')
-            }
         },
 
         async fetchDetail() {
@@ -141,20 +157,24 @@ export default {
                 this.error = ''
                 this.product = null
 
-                const id = Number(this.$route.params.id)
-                if (!Number.isFinite(id) || id <= 0) {
+                const id = this.currentId
+                // Ambil detail dari API
+                const data = await getProduct(id)
+
+                // === KUNCI: filter kategori yang tidak diizinkan ===
+                if (!isAllowedCategory(data?.category)) {
+                    // Jangan anggap error—ini keputusan bisnis → tampilkan Unavailable
                     this.product = null
                     return
                 }
 
-                const data = await getProduct(id)
                 this.product = data || null
             } catch (e) {
                 const msg = e?.message?.includes('HTTP 404')
                     ? 'Produk tidak ditemukan (404).'
                     : e?.message?.toLowerCase?.().includes('network')
                         ? 'Gagal terhubung ke server. Coba lagi.'
-                        : (e?.message || 'Gagal memuat detail produk.')
+                        : e?.message || 'Gagal memuat detail produk.'
                 this.error = msg
             } finally {
                 this.loading = false
@@ -167,7 +187,6 @@ export default {
 
         async onAddToCart() {
             if (this.adding || !this.cartPayload) return
-
             try {
                 this.adding = true
                 await this.$store.dispatch('cart/addItem', this.cartPayload)
@@ -176,9 +195,15 @@ export default {
                 this.adding = false
             }
         },
+
         toggleReadMore() {
             this.isReadMore = !this.isReadMore
         },
+
+        // === NEW: Next product dengan wrap 20 -> 1 ===
+        nextProduct() {
+            this.$router.push(`/products/${this.nextId}`)
+        }
     },
 
     watch: {
@@ -194,3 +219,7 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+/* (gunakan gaya milikmu yang sudah ada; ini placeholder jika diperlukan) */
+</style>
