@@ -6,10 +6,7 @@
             <ErrorBanner v-if="error" :message="error" @retry="retry" />
             <LoadingSpinner v-else-if="loading" />
 
-            <EmptyState v-else-if="!product" title="Produk tidak ditemukan"
-                description="Produk yang Anda cari tidak tersedia. Kembali ke katalog untuk melihat item lainnya.">
-                <router-link class="btn" to="/products" style="margin-top:12px;">Lihat Katalog</router-link>
-            </EmptyState>
+            <ProductUnavailableCard  v-else-if="!product" />
 
             <div v-else class="pd-card">
                 <!-- MEDIA -->
@@ -21,37 +18,41 @@
 
                 <!-- INFO -->
                 <div class="pd-info">
-                    <h2 class="pd-title">{{ product.title }}</h2>
+                    <div class="pd-top-content">
+                        <h2 class="pd-title">{{ product.title }}</h2>
 
-                    <div class="pd-sub">
-                        <span class="pd-category">{{ humanCategory(product.category) }}</span>
+                        <div class="pd-sub">
+                            <span class="pd-category">{{ humanCategory(product.category) }}</span>
 
-                        <div class="pd-rating" v-if="ratingScore">
-                            <span class="pd-rating-score">{{ ratingScore.toFixed(1) }}/5</span>
-                            <ul class="pd-rating-dots" aria-hidden="true">
-                                <li v-for="n in 5" :key="n" :class="{ filled: n <= filledDots }"></li>
-                            </ul>
+                            <div class="pd-rating" v-if="ratingScore">
+                                <span class="pd-rating-score">{{ ratingScore.toFixed(1) }}/5</span>
+                                <ul class="pd-rating-dots" aria-hidden="true">
+                                    <li v-for="n in 5" :key="n" :class="{ filled: n <= filledDots }"></li>
+                                </ul>
+                            </div>
                         </div>
+
+                        <p class="pd-desc custom-scrollbar">{{ product.description }}</p>
                     </div>
 
-                    <p class="pd-desc">{{ product.description }}</p>
+                    <div class="pd-down-content">
+                        <hr class="pd-sep" />
 
-                    <hr class="pd-sep" />
+                        <div class="pd-price-row">
+                            <div class="pd-price">{{ formatPrice(product.price) }}</div>
+                        </div>
 
-                    <div class="pd-price-row">
-                        <div class="pd-price">{{ formatPrice(product.price) }}</div>
-                    </div>
+                        <div class="pd-actions">
+                            <button class="pd-btn pd-btn--solid" :disabled="loading || adding || !product"
+                                @click="onAddToCart">
+                                <span v-if="adding">Menambahkan…</span>
+                                <span v-else>Buy now</span>
+                            </button>
 
-                    <div class="pd-actions">
-                        <button class="pd-btn pd-btn--solid" :disabled="loading || adding || !product"
-                            @click="onAddToCart">
-                            <span v-if="adding">Menambahkan…</span>
-                            <span v-else>Buy now</span>
-                        </button>
-
-                        <router-link class="pd-btn pd-btn--outline" to="/products">
-                            Next product
-                        </router-link>
+                            <router-link class="pd-btn pd-btn--outline" to="/products">
+                                Next product
+                            </router-link>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -62,12 +63,12 @@
 <script>
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import ErrorBanner from '@/components/common/ErrorBanner.vue'
-import EmptyState from '@/components/common/EmptyState.vue'
+import ProductUnavailableCard from '@/components/products/ProductUnavailableCard.vue'
 import { getProduct } from '@/api/products'
 
 export default {
     name: 'ProductDetailView',
-    components: { LoadingSpinner, ErrorBanner, EmptyState },
+    components: { LoadingSpinner, ErrorBanner, ProductUnavailableCard },
 
     data() {
         return {

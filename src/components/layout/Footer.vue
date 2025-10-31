@@ -6,7 +6,6 @@
 <script>export default { name: 'FooterBar' }</script>
 <style scoped>
 .footer {
-    margin-top: 32px;
     padding: 16px;
     border-top: 1px solid #eee;
     text-align: center;

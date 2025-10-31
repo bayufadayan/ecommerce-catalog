@@ -23,6 +23,7 @@ export default {
     color: #666;
     border: 1px dashed #e5e5e5;
     border-radius: 12px;
+    background-color: orange;
 }
 
 .title {
