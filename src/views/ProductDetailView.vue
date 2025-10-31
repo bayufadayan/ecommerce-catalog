@@ -6,7 +6,7 @@
             <ErrorBanner v-if="error" :message="error" @retry="retry" />
             <LoadingSpinner v-else-if="loading" />
 
-            <ProductUnavailableCard  v-else-if="!product" />
+            <ProductUnavailableCard v-else-if="!product" />
 
             <div v-else class="pd-card">
                 <!-- MEDIA -->
@@ -32,7 +32,13 @@
                             </div>
                         </div>
 
-                        <p class="pd-desc custom-scrollbar">{{ product.description }}</p>
+                        <p class="pd-desc custom-scrollbar" :class="{ 'read-more': isReadMore }">
+                            {{ product.description }}
+                        </p>
+
+                        <button class="read-more-btn" @click="toggleReadMore">
+                            {{ isReadMore ? 'Read Less...' : 'Read More...' }}
+                        </button>
                     </div>
 
                     <div class="pd-down-content">
@@ -79,6 +85,7 @@ export default {
             error: '',
             product: null,
             adding: false,
+            isReadMore: false,
         }
     },
     computed: {
@@ -88,13 +95,18 @@ export default {
             return { id, title, price, image, qty: 1 }
         },
         theme() {
-            const c = (this.product?.category || '').toLowerCase()
+            if (!this.product || !this.product.category) return 'neutral'
+            const c = this.product.category.toLowerCase()
             if (c.includes('women')) return 'women'
             if (c.includes('men')) return 'men'
-            return 'men'
+            return 'neutral'
         },
         themeClass() {
-            return this.theme === 'women' ? 'theme-women' : 'theme-men'
+            return this.theme === 'women'
+                ? 'theme-women'
+                : this.theme === 'men'
+                    ? 'theme-men'
+                    : 'theme-neutral'
         },
         ratingScore() {
             return this.product?.rating?.rate || 0
@@ -163,7 +175,10 @@ export default {
             } finally {
                 this.adding = false
             }
-        }
+        },
+        toggleReadMore() {
+            this.isReadMore = !this.isReadMore
+        },
     },
 
     watch: {

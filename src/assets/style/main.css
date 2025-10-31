@@ -884,6 +884,11 @@
   --pd-accent-light: var(--color-secondary-light);
 }
 
+.product-detail.theme-neutral {
+  --pd-accent: var(--color-neutral-900);
+  --pd-accent-light: var(--color-neutral-400);
+}
+
 /* Product Detail - layout */
 .product-detail {
   display: flex;
@@ -1036,6 +1041,10 @@
   padding-right: 4px;
 }
 
+.read-more-btn {
+  display: none;
+}
+
 .pd-sep {
   border: 0;
   border-top: 1px solid var(--color-border);
@@ -1052,7 +1061,7 @@
 .pd-price {
   font-size: 22px;
   font-weight: 800;
-  color: var(--color-text-primary);
+  color: var(--pd-accent);
 }
 
 .pd-actions {
@@ -1402,11 +1411,31 @@
   }
 
   .pd-desc {
-    max-height: 160px;
-    /* biar tidak kepanjangan */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-right: 6px;
+    max-height: 120px;
+    overflow-y: hidden;
+    transition: all 0.3s ease-in;
+  }
+
+  .pd-desc.read-more {
+    max-height: 999px
+  }
+
+  .read-more-btn {
+    display: flex;
+    width: fit-content;
+    margin: 4px 0 0 0;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    background: none;
+    padding: 0;
+    color: var(--pd-accent);
+    transition: all 0.3s ease-in;
+  }
+
+  .read-more-btn:hover {
+    background-color: var(--pd-accent-light);
+    padding-inline: 4px;
   }
 
   .pd-sep {
@@ -1420,11 +1449,6 @@
 
   .pd-price {
     font-size: 20px;
-  }
-
-  .pd-actions {
-    flex-direction: column;
-    gap: 8px;
   }
 
   .pd-btn {
@@ -1444,15 +1468,16 @@
   }
 
   .unavailable-product-container figure img {
-    padding-left: 0;
-    width: 70%;
+    padding-left: 24px;
+    width: 100%;
     height: 100%;
     object-fit: contain;
     max-width: 320px;
+    transform: scale(1.1);
   }
 
   .unavailable-product-container .unavailable-content {
-    position: static;
+    position: absolute;
     align-items: center;
     text-align: center;
     gap: 10px;
@@ -1460,6 +1485,11 @@
 
   .unavailable-btn {
     width: 100%;
+  }
+
+  .card-unavailable {
+    margin-top: 100px;
+
   }
 
   /* Scrollbar lebih halus & tipis di mobile */
@@ -1494,10 +1524,6 @@
 
   .pd-price {
     font-size: 18px;
-  }
-
-  .pd-desc {
-    max-height: 140px;
   }
 
   .pd-btn {

@@ -1,5 +1,5 @@
 <template>
-    <div class="pd-card">
+    <div class="pd-card card-unavailable">
         <div class="unavailable-product-container">
             <figure>
                 <img src="@/assets/sad-face.svg" alt="Coming soon" />

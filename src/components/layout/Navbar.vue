@@ -97,7 +97,7 @@ export default {
                             @keydown.esc.prevent="closeMenu" :aria-expanded="open ? 'true' : 'false'"
                             aria-haspopup="true">
                             <FaIcon icon="user-circle" class="user-icon" />
-                            <span class="hello">Hi, {{ greet || 'Account' }}</span>
+                            <span class="hello">Hi, {{ greet || 'There!' }}</span>
                             <span :class="{ open }">
                                 <FaIcon icon="chevron-down" class="caret" />
                             </span>
