@@ -200,19 +200,34 @@ export default {
         // === NEW: Next product dengan wrap 20 -> 1 ===
         nextProduct() {
             this.$router.push(`/products/${this.nextId}`)
-        }
+        },
+
+        scrollToTop() {
+            try {
+                const supportsSmooth = 'scrollBehavior' in document.documentElement.style;
+                if (supportsSmooth) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    window.scrollTo(0, 0);
+                }
+            } catch (_) {
+                window.scrollTo(0, 0);
+            }
+        },
     },
 
     watch: {
         '$route.params.id': {
             handler() {
-                this.fetchDetail()
+                this.scrollToTop();
+                this.fetchDetail();
             }
         }
     },
 
     created() {
-        this.fetchDetail()
+        this.scrollToTop();
+        this.fetchDetail();
     }
 }
 </script>
