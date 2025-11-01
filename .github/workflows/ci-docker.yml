@@ -1,0 +1,55 @@
+name: CI - Build Vue & Docker
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-test-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 1) Build proyek Vue (cek error dependensi & build)
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install deps & Build (Vue)
+        run: |
+          npm ci || npm install
+          npm run build
+
+      # 2) Build Docker image dari Dockerfile
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker build
+        run: |
+          docker build -t vue2-local-app .
+
+      # 3) (Opsional) Smoke test container: run & curl homepage
+      - name: Run container & smoke test
+        run: |
+          docker run -d --name vue2-web -p 8080:8080 vue2-local-app
+          # tunggu nginx siap
+          for i in {1..20}; do
+            sleep 1
+            if curl -fsS http://localhost:8080 >/dev/null; then
+              echo "App is up"; break
+            fi
+          done
+          # tampilkan log kalau gagal
+          curl -fsS http://localhost:8080 >/dev/null || (docker logs vue2-web && exit 1)
+
+      # 4) Cleanup (biar runner bersih)
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f vue2-web || true
