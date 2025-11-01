@@ -1137,6 +1137,7 @@
   height: 100%;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 .unavailable-product-container figure img {
@@ -1163,7 +1164,8 @@
 .unavailable-btn {
   font-size: 14px;
   margin: 0;
-  padding: 4px;
+  padding: 10px;
+  position: relative;
 }
 
 /* Responsive */
@@ -1452,7 +1454,6 @@
   }
 
   .pd-btn {
-    font-size: 16px;
     padding: 8px;
   }
 
@@ -1468,7 +1469,7 @@
   }
 
   .unavailable-product-container figure img {
-    padding-left: 24px;
+    padding-left: 32px;
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -1485,6 +1486,7 @@
 
   .unavailable-btn {
     width: 100%;
+    padding: 8px;
   }
 
   .card-unavailable {
@@ -1524,12 +1526,6 @@
 
   .pd-price {
     font-size: 18px;
-  }
-
-  .pd-btn {
-    height: 42px;
-    font-size: 14px;
-    padding: 0 12px;
   }
 }
 
