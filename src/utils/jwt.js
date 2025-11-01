@@ -1,8 +1,3 @@
-/**
- * Decode payload dari JWT token (tanpa verifikasi signature)
- * @param {string} token - JWT token
- * @returns {object|null} - Payload hasil decode atau null jika gagal
- */
 export function decodeJwtPayload(token) {
     try {
         if (!token || typeof token !== 'string') return null;
@@ -10,7 +5,6 @@ export function decodeJwtPayload(token) {
         const parts = token.split('.');
         if (parts.length < 2) return null;
 
-        // Decode bagian payload (index ke-1)
         const base64 = parts[1]
             .replace(/-/g, '+')
             .replace(/_/g, '/')
@@ -24,11 +18,6 @@ export function decodeJwtPayload(token) {
     }
 }
 
-/**
- * Ambil user ID (sub) dari token JWT
- * @param {string} token - JWT token
- * @returns {number|null} - User ID jika valid, null jika tidak
- */
 export function getUserIdFromToken(token) {
     const payload = decodeJwtPayload(token);
     const sub = payload?.sub ? Number(payload.sub) : NaN;

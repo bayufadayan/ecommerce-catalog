@@ -1,4 +1,77 @@
-<!-- eslint-disable no-unused-vars -->
+<script>
+import EmptyState from '@/components/common/EmptyState.vue'
+import { mapState, mapGetters } from 'vuex'
+import { formatPrice } from '@/utils/format'
+import BackButton from '@/components/common/BackButton.vue'
+
+export default {
+    name: 'CheckoutView',
+    components: { EmptyState, BackButton },
+    data() {
+        return {
+            form: {
+                name: '',
+                email: '',
+                address: '',
+                city: '',
+                postal: '',
+                note: ''
+            },
+            submitted: false,
+            placing: false
+        }
+    },
+    computed: {
+        ...mapState('cart', ['items']),
+        ...mapGetters('cart', ['subtotal', 'count']),
+        shipping() {
+            return this.items.length ? 20000 : 0
+        },
+        total() {
+            return this.subtotal + this.shipping
+        }
+    },
+    methods: {
+        formatPrice,
+        isEmail(s) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').toLowerCase())
+        },
+        async onSubmit() {
+            this.submitted = true
+            if (!this.form.name || !this.isEmail(this.form.email) || !this.form.address || !this.form.city || !/^[0-9]{4,6}$/.test(this.form.postal)) {
+                this.$root?.$children?.[0]?.$refs?.toast?.show?.('Lengkapi data dengan benar', 1500)
+                return
+            }
+
+            try {
+                this.placing = true
+                // const payload = {
+                //     customer: { ...this.form },
+                //     items: this.items.map(it => ({ id: it.id, qty: it.qty, price: it.price })),
+                //     subtotal: this.subtotal,
+                //     shipping: this.shipping,
+                //     total: this.total,
+                //     createdAt: new Date().toISOString()
+                // }
+                await new Promise(r => setTimeout(r, 700))
+
+                this.$store.dispatch('cart/clear')
+                this.$root?.$children?.[0]?.$refs?.toast?.show?.('Order berhasil (dummy) ✔', 1600)
+
+                this.$router.replace('/products')
+            } finally {
+                this.placing = false
+            }
+        }
+    },
+    created() {
+        if (this.items.length === 0) {
+            this.$router.replace('/cart')
+        }
+    }
+}
+</script>
+
 <template>
     <section class="container">
         <BackButton />
@@ -41,7 +114,8 @@
                     </div>
                     <div class="field">
                         <label>Kode Pos</label>
-                        <input v-model.trim="form.postal" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Kode Pos" required />
+                        <input v-model.trim="form.postal" type="text" inputmode="numeric" pattern="[0-9]*"
+                            placeholder="Kode Pos" required />
                         <small v-if="submitted && !/^[0-9]{4,6}$/.test(form.postal)" class="err">Kode pos tidak
                             valid</small>
                     </div>
@@ -89,78 +163,5 @@
     </section>
 </template>
 
-<script>
-import EmptyState from '@/components/common/EmptyState.vue'
-import { mapState, mapGetters } from 'vuex'
-import { formatPrice } from '@/utils/format'
-import BackButton from '@/components/common/BackButton.vue'
-
-export default {
-    name: 'CheckoutView',
-    components: { EmptyState, BackButton },
-    data() {
-        return {
-            form: { name: '', email: '', address: '', city: '', postal: '', note: '' },
-            submitted: false,
-            placing: false
-        }
-    },
-    computed: {
-        ...mapState('cart', ['items']),
-        ...mapGetters('cart', ['subtotal', 'count']),
-        shipping() {
-            // dummy ongkir: Rp 20.000 kalau ada barang, else 0
-            return this.items.length ? 20000 : 0
-        },
-        total() {
-            return this.subtotal + this.shipping
-        }
-    },
-    methods: {
-        formatPrice,
-        isEmail(s) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').toLowerCase())
-        },
-        async onSubmit() {
-            this.submitted = true
-            // validasi minimal
-            if (!this.form.name || !this.isEmail(this.form.email) || !this.form.address || !this.form.city || !/^[0-9]{4,6}$/.test(this.form.postal)) {
-                this.$root?.$children?.[0]?.$refs?.toast?.show?.('Lengkapi data dengan benar', 1500)
-                return
-            }
-
-            try {
-                this.placing = true
-                // di real app → kirim payload order ke server.
-                // di sini dummy saja.
-                // eslint-disable-next-line no-unused-vars
-                const payload = {
-                    customer: { ...this.form },
-                    items: this.items.map(it => ({ id: it.id, qty: it.qty, price: it.price })),
-                    subtotal: this.subtotal,
-                    shipping: this.shipping,
-                    total: this.total,
-                    createdAt: new Date().toISOString()
-                }
-                // simulate 700ms
-                await new Promise(r => setTimeout(r, 700))
-
-                // clear cart & success toast
-                this.$store.dispatch('cart/clear')
-                this.$root?.$children?.[0]?.$refs?.toast?.show?.('Order berhasil (dummy) ✔', 1600)
-
-                // redirect ke katalog
-                this.$router.replace('/products')
-            } finally {
-                this.placing = false
-            }
-        }
-    },
-    created() {
-        // jika cart kosong, arahkan balik
-        if (this.items.length === 0) {
-            this.$router.replace('/cart')
-        }
-    }
-}
-</script>
+<style scoped>
+</style>

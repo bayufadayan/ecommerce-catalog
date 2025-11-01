@@ -1,21 +1,22 @@
+<script>
+export default {
+    name: 'SkeletonProductDetail'
+}
+</script>
+
 <template>
-    <!-- status live agar screen reader tahu ada konten sedang dimuat -->
     <div class="pd-card pd-skeleton" role="status" aria-live="polite" aria-busy="true">
-        <!-- MEDIA -->
         <div class="pd-media">
             <div class="pd-media-box">
                 <div class="skel skel--media shimmer" />
             </div>
         </div>
 
-        <!-- INFO -->
         <div class="pd-info">
             <div class="pd-top-content">
-                <!-- Title (2 baris: panjang + medium) -->
                 <div class="skel skel--line skel--title-lg shimmer" />
                 <div class="skel skel--line skel--title-md shimmer" />
 
-                <!-- Sub (kategori + rating dots) -->
                 <div class="pd-sub">
                     <div class="skel skel--pill shimmer" style="width: 120px; height: 16px;" />
                     <div class="skel-dots">
@@ -23,7 +24,6 @@
                     </div>
                 </div>
 
-                <!-- Deskripsi (3–5 bar variatif) -->
                 <div class="skel skel--line shimmer" style="width: 95%;" />
                 <div class="skel skel--line shimmer" style="width: 100%;" />
                 <div class="skel skel--line shimmer" style="width: 88%;" />
@@ -47,12 +47,7 @@
     </div>
 </template>
 
-<script>
-export default { name: 'SkeletonProductDetail' }
-</script>
-
 <style scoped>
-/* --- Base skeleton tokens --- */
 .pd-skeleton .skel {
     --skel-base: var(--color-neutral-100, #f2f3f5);
     --skel-highlight: var(--color-neutral-50, #fafafa);
@@ -60,7 +55,6 @@ export default { name: 'SkeletonProductDetail' }
     border-radius: 8px;
 }
 
-/* Shimmer animation */
 .shimmer {
     position: relative;
     overflow: hidden;
@@ -84,14 +78,12 @@ export default { name: 'SkeletonProductDetail' }
     }
 }
 
-/* Reduced motion: matikan animasi */
 @media (prefers-reduced-motion: reduce) {
     .shimmer::after {
         animation: none;
     }
 }
 
-/* --- Shapes --- */
 .skel--media {
     width: 100%;
     height: 100%;
@@ -132,14 +124,12 @@ export default { name: 'SkeletonProductDetail' }
     border-radius: 50%;
 }
 
-/* Harga */
 .skel--price {
     width: 140px;
     height: 22px;
     border-radius: 8px;
 }
 
-/* Tombol */
 .skel--btn,
 .skel--btn-outline {
     height: 40px;
@@ -153,13 +143,11 @@ export default { name: 'SkeletonProductDetail' }
 }
 
 .skel--btn {
-    /* meniru tombol solid */
     background: var(--pd-accent, #111);
     opacity: .18;
 }
 
 .skel--btn-outline {
-    /* meniru tombol outline */
     background: transparent;
     box-shadow: inset 0 0 0 2px var(--pd-accent, #111);
     opacity: .25;
@@ -174,7 +162,6 @@ export default { name: 'SkeletonProductDetail' }
     box-shadow: inset 0 0 0 1px var(--pd-accent-light, #dfe3e6);
 }
 
-/* --- Layout harmonized with your classes --- */
 .pd-card {
     display: flex;
     gap: 16px;
@@ -203,7 +190,6 @@ export default { name: 'SkeletonProductDetail' }
     border-radius: 10px;
 }
 
-/* Info area mirrors your heights to reduce CLS */
 .pd-info {
     display: flex;
     flex: 1;
@@ -236,7 +222,6 @@ export default { name: 'SkeletonProductDetail' }
     border-bottom: 1px solid var(--color-border, #eaeaea);
 }
 
-/* Mobile match (copied from your breakpoints) */
 @media (max-width: 768px) {
     .pd-card {
         flex-direction: column;

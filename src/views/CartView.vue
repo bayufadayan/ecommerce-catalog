@@ -1,3 +1,53 @@
+<script>
+import EmptyState from '@/components/common/EmptyState.vue'
+import { mapState, mapGetters } from 'vuex'
+import { formatPrice } from '@/utils/format'
+import BackButton from '@/components/common/BackButton.vue'
+
+export default {
+    name: 'CartView',
+    components: { EmptyState, BackButton },
+    computed: {
+        ...mapState('cart', ['items']),
+        ...mapGetters('cart', ['subtotal', 'count']),
+        totalQty() {
+            return this.count
+        }
+    },
+    methods: {
+        formatPrice,
+        goDetail(id) {
+            this.$router.push(`/products/${id}`)
+        },
+        inc(it) {
+            const q = Math.max(1, (it.qty || 1) + 1)
+            this.$store.dispatch('cart/setQty', { id: it.id, qty: q })
+        },
+        dec(it) {
+            const q = Math.max(1, (it.qty || 1) - 1)
+            this.$store.dispatch('cart/setQty', { id: it.id, qty: q })
+        },
+        onQtyInput(it, val) {
+            const parsed = parseInt(String(val).replace(/\D/g, ''), 10)
+            const q = Math.max(1, isNaN(parsed) ? 1 : parsed)
+            this.$store.dispatch('cart/setQty', { id: it.id, qty: q })
+        },
+        remove(id) {
+            this.$store.dispatch('cart/removeItem', id)
+            this.$root?.$children?.[0]?.$refs?.toast?.show?.('Item dihapus', 1200)
+        },
+        clearCart() {
+            this.$store.dispatch('cart/clear')
+            this.$root?.$children?.[0]?.$refs?.toast?.show?.('Keranjang dikosongkan', 1200)
+        },
+        checkout() {
+            // this.$root?.$children?.[0]?.$refs?.toast?.show?.('Checkout (dummy): segera hadir!', 1500)
+            this.$router.push('/checkout')
+        }
+    }
+}
+</script>
+
 <template>
     <section class="container">
         <BackButton />
@@ -57,51 +107,5 @@
     </section>
 </template>
 
-<script>
-import EmptyState from '@/components/common/EmptyState.vue'
-import { mapState, mapGetters } from 'vuex'
-import { formatPrice } from '@/utils/format'
-import BackButton from '@/components/common/BackButton.vue'
-
-export default {
-    name: 'CartView',
-    components: { EmptyState, BackButton },
-    computed: {
-        ...mapState('cart', ['items']),
-        ...mapGetters('cart', ['subtotal', 'count']),
-        totalQty() { return this.count }
-    },
-    methods: {
-        formatPrice,
-        goDetail(id) { this.$router.push(`/products/${id}`) },
-
-        inc(it) {
-            const q = Math.max(1, (it.qty || 1) + 1)
-            this.$store.dispatch('cart/setQty', { id: it.id, qty: q })
-        },
-        dec(it) {
-            const q = Math.max(1, (it.qty || 1) - 1)
-            this.$store.dispatch('cart/setQty', { id: it.id, qty: q })
-        },
-        onQtyInput(it, val) {
-            const parsed = parseInt(String(val).replace(/\D/g, ''), 10)
-            const q = Math.max(1, isNaN(parsed) ? 1 : parsed)
-            this.$store.dispatch('cart/setQty', { id: it.id, qty: q })
-        },
-        remove(id) {
-            this.$store.dispatch('cart/removeItem', id)
-            this.$root?.$children?.[0]?.$refs?.toast?.show?.('Item dihapus', 1200)
-        },
-        clearCart() {
-            this.$store.dispatch('cart/clear')
-            this.$root?.$children?.[0]?.$refs?.toast?.show?.('Keranjang dikosongkan', 1200)
-        },
-        checkout() {
-            // dummy: cukup tampilkan toast
-            // this.$root?.$children?.[0]?.$refs?.toast?.show?.('Checkout (dummy): segera hadir!', 1500)
-            this.$router.push('/checkout')
-        }
-    }
-}
-
-</script>
+<style scoped>
+</style>

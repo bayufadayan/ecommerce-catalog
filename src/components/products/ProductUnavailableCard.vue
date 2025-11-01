@@ -1,23 +1,3 @@
-<template>
-    <div class="pd-card card-unavailable">
-        <div class="unavailable-product-container">
-            <figure>
-                <img src="@/assets/sad-face.svg" alt="Coming soon" />
-            </figure>
-
-            <div class="unavailable-content">
-                <p>This product is unavailable to show</p>
-
-                <!-- Tombol Next product -->
-                <button class="pd-btn pd-btn--outline unavailable-btn" @click="goNext"
-                    :aria-label="`Next product (ID ${nextId})`">
-                    Next product
-                </button>
-            </div>
-        </div>
-    </div>
-</template>
-
 <script>
 export default {
     name: 'ProductUnavailableCard',
@@ -40,6 +20,25 @@ export default {
     }
 }
 </script>
+
+<template>
+    <div class="pd-card card-unavailable">
+        <div class="unavailable-product-container">
+            <figure>
+                <img src="@/assets/sad-face.svg" alt="Coming soon" />
+            </figure>
+
+            <div class="unavailable-content">
+                <p>This product is unavailable to show</p>
+
+                <button class="pd-btn pd-btn--outline unavailable-btn" @click="goNext"
+                    :aria-label="`Next product (ID ${nextId})`">
+                    Next product
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
 
 <style scoped>
 </style>

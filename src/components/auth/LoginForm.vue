@@ -2,19 +2,32 @@
 export default {
     name: 'LoginForm',
     props: {
-        loading: { type: Boolean, default: false },
-        error: { type: String, default: '' }
+        loading: {
+            type: Boolean,
+            default: false
+        },
+        error: {
+            type: String,
+            default: ''
+        }
     },
     data() {
         return {
-            form: { username: '', password: '' },
+            form: {
+                username: '',
+                password: ''
+            },
             showPassword: false,
             credOpen: false,
             demo: {
                 username: 'mor_2314',
                 password: '83r5^_'
             },
-            localToast: { show: false, message: '', timer: null }
+            localToast: {
+                show: false,
+                message: '',
+                timer: null
+            }
         }
     },
     computed: {
@@ -113,7 +126,7 @@ export default {
             <span v-else>Login</span>
         </button>
 
-        <!-- Credential dropdown (pengganti <details>) -->
+        <!-- Credential dropdown -->
         <div class="cred" ref="cred">
             <button type="button" class="cred__toggle" @click.stop="toggleCred"
                 :aria-expanded="credOpen ? 'true' : 'false'" aria-controls="cred-panel">
@@ -122,7 +135,6 @@ export default {
             </button>
 
             <div v-show="credOpen" id="cred-panel" class="cred__panel" role="region" aria-label="Contoh credential">
-                <!-- Username row -->
                 <div class="cred__row">
                     <div class="cred__label">Username</div>
                     <div class="cred__value">
@@ -135,7 +147,7 @@ export default {
                         </button>
                     </div>
                 </div>
-                <!-- Password row -->
+
                 <div class="cred__row">
                     <div class="cred__label">Password</div>
                     <div class="cred__value">
@@ -151,9 +163,11 @@ export default {
             </div>
         </div>
 
-        <!-- Local toast fallback (jika global toast tidak ada) -->
         <div v-if="localToast.show" class="toast-local" role="status" aria-live="polite">
             {{ localToast.message }}
         </div>
     </form>
 </template>
+
+<style scoped>
+</style>

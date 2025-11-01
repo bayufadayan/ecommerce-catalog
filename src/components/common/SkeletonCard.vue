@@ -1,3 +1,9 @@
+<script>
+export default {
+    name: 'SkeletonCard'
+}
+</script>
+
 <template>
     <div class="s-card" aria-hidden="true">
         <div class="s-thumb shimmer"></div>
@@ -6,9 +12,6 @@
     </div>
 </template>
 
-<script>
-export default { name: 'SkeletonCard' }
-</script>
 
 <style scoped>
 .s-card {

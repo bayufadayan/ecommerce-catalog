@@ -9,7 +9,6 @@ const state = () => ({
 });
 
 const getters = {
-    // Cek apakah user sudah login (punya token)
     isAuthenticated: (state) => !!state.token,
     getUser: (state) => state.user,
     getStatus: (state) => state.status,
@@ -52,14 +51,12 @@ const actions = {
             const { token } = await apiLogin({ username, password });
             if (!token) throw new Error('Token tidak ditemukan dalam respons.');
 
-            // Simpan token ke state dan localStorage
             commit('setToken', token);
             commit('setStatus', 'success');
             localStorage.setItem(FK_TOKEN_KEY, token);
 
             return token;
         } catch (err) {
-            // Axios interceptor memformat message jadi "HTTP <status>" utk error HTTP.
             const raw = err?.message || '';
             let msg = 'Username atau password tidak sesuai.';
 

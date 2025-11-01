@@ -1,10 +1,3 @@
-<template>
-    <div class="err" role="alert">
-        <span>{{ message }}</span>
-        <button v-if="showRetry" @click="$emit('retry')">Retry</button>
-    </div>
-</template>
-
 <script>
 export default {
     name: 'ErrorBanner',
@@ -14,6 +7,13 @@ export default {
     }
 }
 </script>
+
+<template>
+    <div class="err" role="alert">
+        <span>{{ message }}</span>
+        <button v-if="showRetry" @click="$emit('retry')">Retry</button>
+    </div>
+</template>
 
 <style scoped>
 .err {

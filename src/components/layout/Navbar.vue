@@ -126,3 +126,6 @@ export default {
         </div>
     </header>
 </template>
+
+<style scoped>
+</style>

@@ -1,42 +1,3 @@
-<template>
-    <section class="container">
-        <h1 class="pv-title">Products</h1>
-
-        <!-- Controls (moved to ProductsHeader component) -->
-        <ProductsHeader
-            :categories="categories"
-            :valueCategory="filters.category"
-            :valueQuery="filters.query"
-            :valueSortBy="filters.sortBy"
-            :debounceMs="300"
-            @update:category="onCategory"
-            @update:query="(q) => $store.dispatch('products/setQuery', q)"
-            @update:sortBy="(s) => $store.dispatch('products/setSortBy', s)"
-            @reset="retry"
-        />
-
-        <!-- ERROR -->
-        <ErrorBanner v-if="error" :message="error" @retry="retry" />
-
-        <!-- LOADING (server fetch) -->
-        <div v-else-if="loading" class="pv-grid">
-            <SkeletonCard v-for="n in 8" :key="n" />
-        </div>
-
-        <!-- EMPTY -->
-        <EmptyState v-else-if="items.length === 0" title="Tidak ada produk"
-            description="Coba ubah kategori, urutan, atau kata kunci pencarian.">
-            <button class="btn" @click="retry" style="margin-top:12px;">Muat Ulang</button>
-        </EmptyState>
-
-        <!-- CONTENT -->
-        <div v-else class="pv-grid">
-            <ProductCard v-for="p in items" :key="p.id" :product="p" />
-        </div>
-
-        <a class="pv-skip-top" href="#top">Kembali ke atas</a>
-    </section>
-</template>
 
 <script>
 import { mapState, mapGetters } from 'vuex'
@@ -62,18 +23,57 @@ export default {
         onSort(e) { this.$store.dispatch('products/setSortBy', e.target.value) },
         onQuery: debounce(function (e) {
             this.$store.dispatch('products/setQuery', e.target.value)
-            // query tidak fetch server; filter client-side dari cache
         }, 300),
         retry() {
             this.$store.dispatch('products/fetchProducts')
         }
     },
     created() {
-        // Jangan pakai .finally pada hasil dispatch yang mungkin undefined ketika action unknown.
-        // Gunakan Promise.resolve(...) agar aman.
         Promise.resolve(this.$store.dispatch('products/bootstrap'))
-            .catch(() => { }) // kalau gagal bootstrap, lanjut fetch saja
+            .catch(() => { })
             .then(() => this.$store.dispatch('products/fetchProducts'))
     }
 }
 </script>
+
+<template>
+    <section class="container">
+        <h1 class="pv-title">Products</h1>
+
+        <ProductsHeader
+            :categories="categories"
+            :valueCategory="filters.category"
+            :valueQuery="filters.query"
+            :valueSortBy="filters.sortBy"
+            :debounceMs="300"
+            @update:category="onCategory"
+            @update:query="(q) => $store.dispatch('products/setQuery', q)"
+            @update:sortBy="(s) => $store.dispatch('products/setSortBy', s)"
+            @reset="retry"
+        />
+
+        <!-- ERROR -->
+        <ErrorBanner v-if="error" :message="error" @retry="retry" />
+
+        <!-- LOADING -->
+        <div v-else-if="loading" class="pv-grid">
+            <SkeletonCard v-for="n in 8" :key="n" />
+        </div>
+
+        <!-- EMPTY -->
+        <EmptyState v-else-if="items.length === 0" title="Tidak ada produk"
+            description="Coba ubah kategori, urutan, atau kata kunci pencarian.">
+            <button class="btn" @click="retry" style="margin-top:12px;">Muat Ulang</button>
+        </EmptyState>
+
+        <!-- CONTENT -->
+        <div v-else class="pv-grid">
+            <ProductCard v-for="p in items" :key="p.id" :product="p" />
+        </div>
+
+        <a class="pv-skip-top" href="#top">Kembali ke atas</a>
+    </section>
+</template>
+
+<style scoped>
+</style>

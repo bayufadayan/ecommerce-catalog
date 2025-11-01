@@ -1,8 +1,12 @@
+<script>
+export default {
+    name: 'ProfileSkeleton'
+}
+</script>
+
 <template>
     <div class="pf-skel">
-        <!-- PANEL KIRI -->
         <div class="panel">
-            <!-- HEAD -->
             <div class="head">
                 <div class="avatar skel"></div>
                 <div class="ident">
@@ -11,7 +15,6 @@
                 </div>
             </div>
 
-            <!-- GRID ITEM (VIEW MODE LOOK) -->
             <div class="grid">
                 <div class="item">
                     <div class="bar bar-xs skel mb4"></div>
@@ -36,7 +39,6 @@
                 </div>
             </div>
 
-            <!-- ACTIONS -->
             <div class="actions">
                 <div class="btn-skel skel"></div>
                 <div class="btn-skel skel"></div>
@@ -44,7 +46,6 @@
             </div>
         </div>
 
-        <!-- PANEL KANAN -->
         <aside class="panel side">
             <div class="line">
                 <span class="bar bar-xs skel w-35"></span>
@@ -66,14 +67,7 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'ProfileSkeleton'
-}
-</script>
-
 <style scoped>
-/* Layout mengikuti pola .pf kamu */
 .pf-skel {
     display: grid;
     grid-template-columns: 1fr;
@@ -81,7 +75,6 @@ export default {
     margin-top: 24px;
 }
 
-/* Panel dasar (tanpa rounded) */
 .panel {
     border: 1px solid var(--color-border, #e5e5e5);
     padding: 16px;
@@ -89,7 +82,6 @@ export default {
     box-shadow: none;
 }
 
-/* Head */
 .head {
     display: flex;
     gap: 16px;
@@ -110,7 +102,6 @@ export default {
     gap: 6px;
 }
 
-/* Grid item seperti view-mode */
 .grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -126,10 +117,8 @@ export default {
 
 .item.span2 {
     grid-column: span 1;
-    /* di mobile tetap 1 kolom */
 }
 
-/* Actions row */
 .actions {
     margin-top: 16px;
     display: flex;
@@ -137,7 +126,6 @@ export default {
     flex-wrap: wrap;
 }
 
-/* Side (kanan) */
 .side {
     position: sticky;
     top: 70px;
@@ -159,7 +147,6 @@ export default {
     border-bottom: none;
 }
 
-/* ===== Skeleton base + shimmer ===== */
 .skel {
     position: relative;
     overflow: hidden;
@@ -182,7 +169,6 @@ export default {
     }
 }
 
-/* Bars */
 .bar {
     height: 12px;
     background: #eaeaea;
@@ -212,7 +198,6 @@ export default {
     margin-bottom: 6px;
 }
 
-/* width modifiers */
 .w-25 {
     width: 25%;
 }
@@ -237,7 +222,6 @@ export default {
     width: 55%;
 }
 
-/* Button skeletons (tanpa rounded) */
 .btn-skel {
     height: 36px;
     width: 140px;
@@ -249,7 +233,6 @@ export default {
     width: 180px;
 }
 
-/* Responsive mengikuti layout profile */
 @media (min-width: 960px) {
     .pf-skel {
         grid-template-columns: 2fr 1fr;

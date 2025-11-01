@@ -4,7 +4,6 @@ import store from '@/store';
 
 Vue.use(VueRouter)
 
-// LAZY views
 const LoginView = () => import('../views/LoginView.vue')
 const ProductView = () => import('../views/ProductView.vue')
 const ProductDetailView = () => import('../views/ProductDetailView.vue')

@@ -48,11 +48,6 @@ const mutations = {
 };
 
 const actions = {
-    /**
-     * fetchMe:
-     * - Jika userId tidak diberikan, coba ambil dari token auth di store
-     * - Ambil /users/:id dan simpan di state
-     */
     async fetchMe({ commit, rootState }, userId) {
         commit('setLoading', true);
         commit('setError', '');

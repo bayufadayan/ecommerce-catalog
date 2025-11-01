@@ -1,78 +1,3 @@
-<template>
-    <main :class="['product-detail', themeClass]">
-        <div class="pd-hero"></div>
-
-        <section class="container-product-detail">
-            <ErrorBanner v-if="error" :message="error" @retry="retry" />
-            <SkeletonProductDetail v-else-if="loading" />
-
-            <!-- Jika product null (karena kategori tidak diizinkan ATAU ID invalid) -->
-            <ProductUnavailableCard v-else-if="!product" :current-id="currentId" />
-
-            <!-- Product tersedia & allowed -->
-            <div v-else class="pd-card">
-                <!-- MEDIA -->
-                <div class="pd-media">
-                    <div class="pd-media-box">
-                        <img :src="product.image" :alt="product.title" />
-                    </div>
-                </div>
-
-                <!-- INFO -->
-                <div class="pd-info">
-                    <div class="pd-top-content">
-                        <h2 class="pd-title">{{ product.title }}</h2>
-
-                        <div class="pd-sub">
-                            <span class="pd-category">{{ humanCategory(product.category) }}</span>
-
-                            <div class="pd-rating" v-if="ratingScore">
-                                <span class="pd-rating-score">{{ ratingScore.toFixed(1) }}/5</span>
-                                <ul class="pd-rating-dots" aria-hidden="true">
-                                    <li v-for="n in 5" :key="n" :class="{ filled: n <= filledDots }"></li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <p class="pd-desc custom-scrollbar" :class="{ 'read-more': isReadMore }">
-                            {{ product.description }}
-                        </p>
-
-                        <button class="read-more-btn" @click="toggleReadMore">
-                            {{ isReadMore ? 'Read Less...' : 'Read More...' }}
-                        </button>
-                    </div>
-
-                    <div class="pd-down-content">
-                        <hr class="pd-sep" />
-
-                        <div class="pd-price-row">
-                            <div class="pd-price">{{ formatPrice(product.price) }}</div>
-                        </div>
-
-                        <div class="pd-actions">
-                            <button class="pd-btn pd-btn--solid" :disabled="loading || adding || !product"
-                                @click="onAddToCart">
-                                <span v-if="adding">Menambahkan…</span>
-                                <span v-else class="cart-btn">
-                                    <FaIcon icon="shopping-cart" class="icon" />
-                                    Add to Cart
-                                </span>
-                            </button>
-
-                            <!-- Next product: gunakan method agar logika wrap jelas -->
-                            <button class="pd-btn pd-btn--outline" :aria-label="`Next product (ID ${nextId})`"
-                                @click="nextProduct">
-                                Next product
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-</template>
-
 <script>
 import ErrorBanner from '@/components/common/ErrorBanner.vue';
 import ProductUnavailableCard from '@/components/products/ProductUnavailableCard.vue';
@@ -100,7 +25,6 @@ export default {
             return Number.isFinite(id) && id > 0 ? id : 1
         },
 
-        // ID berikutnya (wrap 20 -> 1)
         nextId() {
             return (this.currentId % 20) + 1
         },
@@ -155,12 +79,9 @@ export default {
                 this.product = null
 
                 const id = this.currentId
-                // Ambil detail dari API
                 const data = await getProduct(id)
 
-                // === KUNCI: filter kategori yang tidak diizinkan ===
                 if (!isAllowedCategory(data?.category)) {
-                    // Jangan anggap error—ini keputusan bisnis → tampilkan Unavailable
                     this.product = null
                     return
                 }
@@ -197,7 +118,6 @@ export default {
             this.isReadMore = !this.isReadMore
         },
 
-        // === NEW: Next product dengan wrap 20 -> 1 ===
         nextProduct() {
             this.$router.push(`/products/${this.nextId}`)
         },
@@ -232,6 +152,76 @@ export default {
 }
 </script>
 
+<template>
+    <main :class="['product-detail', themeClass]">
+        <div class="pd-hero"></div>
+
+        <section class="container-product-detail">
+            <ErrorBanner v-if="error" :message="error" @retry="retry" />
+            <SkeletonProductDetail v-else-if="loading" />
+            <ProductUnavailableCard v-else-if="!product" :current-id="currentId" />
+
+            <div v-else class="pd-card">
+                <!-- MEDIA -->
+                <div class="pd-media">
+                    <div class="pd-media-box">
+                        <img :src="product.image" :alt="product.title" />
+                    </div>
+                </div>
+
+                <!-- INFO -->
+                <div class="pd-info">
+                    <div class="pd-top-content">
+                        <h2 class="pd-title">{{ product.title }}</h2>
+
+                        <div class="pd-sub">
+                            <span class="pd-category">{{ humanCategory(product.category) }}</span>
+
+                            <div class="pd-rating" v-if="ratingScore">
+                                <span class="pd-rating-score">{{ ratingScore.toFixed(1) }}/5</span>
+                                <ul class="pd-rating-dots" aria-hidden="true">
+                                    <li v-for="n in 5" :key="n" :class="{ filled: n <= filledDots }"></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <p class="pd-desc custom-scrollbar" :class="{ 'read-more': isReadMore }">
+                            {{ product.description }}
+                        </p>
+
+                        <button class="read-more-btn" @click="toggleReadMore">
+                            {{ isReadMore ? 'Read Less...' : 'Read More...' }}
+                        </button>
+                    </div>
+
+                    <div class="pd-down-content">
+                        <hr class="pd-sep" />
+
+                        <div class="pd-price-row">
+                            <div class="pd-price">{{ formatPrice(product.price) }}</div>
+                        </div>
+
+                        <div class="pd-actions">
+                            <button class="pd-btn pd-btn--solid" :disabled="loading || adding || !product"
+                                @click="onAddToCart">
+                                <span v-if="adding">Menambahkan…</span>
+                                <span v-else class="cart-btn">
+                                    <FaIcon icon="shopping-cart" class="icon" />
+                                    Add to Cart
+                                </span>
+                            </button>
+
+                            <button class="pd-btn pd-btn--outline" :aria-label="`Next product (ID ${nextId})`"
+                                @click="nextProduct">
+                                Next product
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</template>
+
 <style scoped>
-/* (gunakan gaya milikmu yang sudah ada; ini placeholder jika diperlukan) */
 </style>
