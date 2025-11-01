@@ -54,7 +54,6 @@ export default {
     border-top: 1px solid var(--color-border, #e6e6e6);
     background: var(--color-bg, #fff);
     color: var(--color-text-secondary, #6b7280);
-    /* abu soft */
     font: 13px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
 }
 
