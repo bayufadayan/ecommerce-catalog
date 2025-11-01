@@ -1,7 +1,7 @@
 <template>
     <section class="container">
         <BackButton />
-        <h1 class="profile-title">Profil</h1>
+        <h1 class="profile-title">Profile</h1>
 
         <!-- ERROR -->
         <ErrorBanner v-if="error" :message="error" @retry="retry" />

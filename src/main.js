@@ -4,10 +4,10 @@ import router from '@/router';
 import store from '@/store';
 import '@/assets/style/main.css';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faShoppingCart, faUser, faRightFromBracket, faUserCircle, faBox, faChevronDown, faCopy, faTimes, faBars, faArrowLeft, faSync } from '@fortawesome/free-solid-svg-icons';
+import { faShoppingCart, faUser, faRightFromBracket, faUserCircle, faBox, faChevronDown, faCopy, faTimes, faBars, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-library.add(faShoppingCart, faUser, faRightFromBracket, faUserCircle, faBox, faChevronDown, faCopy, faTimes, faBars, faArrowLeft, faSync);
+library.add(faShoppingCart, faUser, faRightFromBracket, faUserCircle, faBox, faChevronDown, faCopy, faTimes, faBars, faArrowLeft);
 Vue.component('FaIcon', FontAwesomeIcon)
 
 Vue.config.productionTip = false

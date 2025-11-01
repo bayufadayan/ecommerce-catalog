@@ -2,7 +2,7 @@
 <template>
     <section class="container">
         <BackButton />
-        <h1>Checkout</h1>
+        <h1 class="pv-title">Checkout</h1>
 
         <EmptyState v-if="items.length === 0" title="Keranjang kosong"
             description="Tambahkan produk dulu sebelum checkout.">
@@ -36,12 +36,12 @@
                 <div class="row2">
                     <div class="field">
                         <label>Kota</label>
-                        <input v-model.trim="form.city" type="text" required />
+                        <input v-model.trim="form.city" type="text" placeholder="Kota/Kabupaten" required />
                         <small v-if="submitted && !form.city" class="err">Wajib diisi</small>
                     </div>
                     <div class="field">
                         <label>Kode Pos</label>
-                        <input v-model.trim="form.postal" type="text" inputmode="numeric" pattern="[0-9]*" required />
+                        <input v-model.trim="form.postal" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Kode Pos" required />
                         <small v-if="submitted && !/^[0-9]{4,6}$/.test(form.postal)" class="err">Kode pos tidak
                             valid</small>
                     </div>

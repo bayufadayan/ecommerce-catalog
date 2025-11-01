@@ -1,7 +1,7 @@
 <template>
     <section class="container">
         <BackButton />
-        <h1>Keranjang</h1>
+        <h1 class="pv-title">Keranjang</h1>
 
         <!-- EMPTY -->
         <EmptyState v-if="items.length === 0" title="Keranjang kosong"
@@ -50,7 +50,7 @@
                     <strong>{{ formatPrice(subtotal) }}</strong>
                 </div>
 
-                <button class="btn primary" @click="checkout">Checkout (dummy)</button>
+                <button class="btn primary" @click="checkout">Checkout</button>
                 <button class="btn ghost" @click="clearCart">Kosongkan Keranjang</button>
             </aside>
         </div>
