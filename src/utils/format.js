@@ -1,9 +1,10 @@
-export const formatIDR = (amount) => {
-    const formatter = new Intl.NumberFormat('id-ID', {
+export const formatPrice = (amount) => {
+    const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: 'IDR',
-        maximumFractionDigits: 0,
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
     })
 
-    return formatter.format(amount || 0)
+    return formatter.format(amount ?? 0)
 }

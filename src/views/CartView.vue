@@ -19,7 +19,7 @@
 
                     <div class="main">
                         <router-link class="title" :to="`/products/${it.id}`">{{ it.title }}</router-link>
-                        <div class="price">{{ formatIDR(it.price) }}</div>
+                        <div class="price">{{ formatPrice(it.price) }}</div>
 
                         <div class="controls">
                             <div class="qty">
@@ -35,7 +35,7 @@
 
                     <div class="sub">
                         <div class="label">Subtotal</div>
-                        <div class="num">{{ formatIDR(it.price * it.qty) }}</div>
+                        <div class="num">{{ formatPrice(it.price * it.qty) }}</div>
                     </div>
                 </article>
             </div>
@@ -47,7 +47,7 @@
                 </div>
                 <div class="line">
                     <span>Subtotal</span>
-                    <strong>{{ formatIDR(subtotal) }}</strong>
+                    <strong>{{ formatPrice(subtotal) }}</strong>
                 </div>
 
                 <button class="btn primary" @click="checkout">Checkout (dummy)</button>
@@ -60,7 +60,7 @@
 <script>
 import EmptyState from '@/components/common/EmptyState.vue'
 import { mapState, mapGetters } from 'vuex'
-import { formatIDR } from '@/utils/format'
+import { formatPrice } from '@/utils/format'
 import BackButton from '@/components/common/BackButton.vue'
 
 export default {
@@ -72,7 +72,7 @@ export default {
         totalQty() { return this.count }
     },
     methods: {
-        formatIDR,
+        formatPrice,
         goDetail(id) { this.$router.push(`/products/${id}`) },
 
         inc(it) {

@@ -66,23 +66,23 @@
                         <img :src="it.image" :alt="it.title" />
                         <div class="meta">
                             <div class="title" :title="it.title">{{ it.title }}</div>
-                            <div class="desc">Qty: {{ it.qty }} × {{ formatIDR(it.price) }}</div>
+                            <div class="desc">Qty: {{ it.qty }} × {{ formatPrice(it.price) }}</div>
                         </div>
-                        <div class="sub">{{ formatIDR(it.price * it.qty) }}</div>
+                        <div class="sub">{{ formatPrice(it.price * it.qty) }}</div>
                     </li>
                 </ul>
 
                 <div class="line">
                     <span>Subtotal</span>
-                    <strong>{{ formatIDR(subtotal) }}</strong>
+                    <strong>{{ formatPrice(subtotal) }}</strong>
                 </div>
                 <div class="line">
                     <span>Ongkir (dummy)</span>
-                    <strong>{{ formatIDR(shipping) }}</strong>
+                    <strong>{{ formatPrice(shipping) }}</strong>
                 </div>
                 <div class="line total">
                     <span>Total</span>
-                    <strong>{{ formatIDR(total) }}</strong>
+                    <strong>{{ formatPrice(total) }}</strong>
                 </div>
             </aside>
         </div>
@@ -92,7 +92,7 @@
 <script>
 import EmptyState from '@/components/common/EmptyState.vue'
 import { mapState, mapGetters } from 'vuex'
-import { formatIDR } from '@/utils/format'
+import { formatPrice } from '@/utils/format'
 import BackButton from '@/components/common/BackButton.vue'
 
 export default {
@@ -117,7 +117,7 @@ export default {
         }
     },
     methods: {
-        formatIDR,
+        formatPrice,
         isEmail(s) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').toLowerCase())
         },

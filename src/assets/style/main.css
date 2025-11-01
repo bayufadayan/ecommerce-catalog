@@ -10,6 +10,7 @@
 
 .container {
   max-width: 1040px;
+  width: 100%;
   padding: 16px;
   margin: 0 auto;
   background-color: var(--color-neutral-50);
@@ -1527,6 +1528,152 @@
   .pd-price {
     font-size: 18px;
   }
+}
+
+/* Product View Styles */
+.pv-title {
+  margin-bottom: 12px;
+  color: var(--color-text-primary);
+}
+
+.pv-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.pv-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pv-chip {
+  border: 1px solid var(--color-border);
+  padding: 6px 10px;
+  background: var(--color-neutral-50);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.pv-chip--active {
+  background: var(--color-primary);
+  color: var(--color-neutral-50);
+  border-color: var(--color-primary);
+}
+
+.pv-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pv-search,
+.pv-sort {
+  border: 1px solid var(--color-border);
+  padding: 8px 10px;
+  background: var(--color-neutral-50);
+  color: var(--color-text-primary);
+}
+
+.pv-search {
+  min-width: 220px;
+}
+
+/* Make controls share available space and behave responsively */
+.pv-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pv-search,
+.pv-sort {
+  flex: 1 1 0px; /* equal width */
+}
+
+.pv-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* Minimal reset button for product header */
+.pv-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  height: 36px;
+  font-size: 14px;
+  background: rgba(15, 39, 66, 0.04); /* subtle semi-transparent */
+  color: var(--color-text-secondary);
+  border: 1px solid rgba(15, 39, 66, 0.06);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background .12s ease, transform .08s ease, color .12s ease;
+}
+
+.pv-reset-btn:hover {
+  background: rgba(15, 39, 66, 0.06);
+  color: var(--color-text-primary);
+}
+
+.pv-reset-btn:active {
+  transform: translateY(1px);
+}
+
+.pv-reset-btn .icon {
+  font-size: 16px;
+  color: inherit;
+}
+
+/* Mobile: stack toolbar and hide reset label */
+@media (max-width: 768px) {
+  .pv-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pv-controls {
+    width: 100%;
+  }
+
+  .pv-search,
+  .pv-sort {
+    flex: 1 1 0px;
+  }
+
+  .pv-reset-label {
+    display: none;
+  }
+
+  .pv-reset {
+    justify-content: center;
+  }
+}
+
+.pv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .pv-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.pv-skip-top {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
 }
 
 /* Utility */

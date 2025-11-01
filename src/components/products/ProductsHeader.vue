@@ -1,34 +1,40 @@
 <template>
-    <div class="ph">
+    <div class="pv-toolbar" role="region" aria-label="Filter dan Sort">
         <!-- Kategori -->
-        <label class="row">
-            <span class="lbl">Kategori</span>
-            <select class="ctl" :value="valueCategory" @change="onCategory($event.target.value)">
-                <option v-for="c in categories" :key="c" :value="c">
-                    {{ labelize(c) }}
-                </option>
-            </select>
-        </label>
+        <div class="pv-chips" role="tablist" aria-label="Kategori">
+            <button
+                v-for="c in categories"
+                :key="c"
+                class="pv-chip"
+                :class="{ 'pv-chip--active': valueCategory === c }"
+                role="tab"
+                @click="onCategory(c)">
+                {{ labelize(c) }}
+            </button>
+        </div>
 
-        <!-- Search -->
-        <label class="row">
-            <span class="lbl">Cari</span>
-            <input class="ctl" type="search" :value="localQuery" placeholder="cari judul / deskripsi…"
-                @input="onQueryInput($event.target.value)" />
-        </label>
+        <!-- Controls: search + sort + reset -->
+        <div class="pv-controls">
+            <input
+                class="pv-search"
+                type="search"
+                :value="localQuery"
+                placeholder="Cari produk…"
+                @input="onQueryInput($event.target.value)"
+                aria-label="Cari produk" />
 
-        <!-- Sort -->
-        <label class="row">
-            <span class="lbl">Urutkan</span>
-            <select class="ctl" :value="valueSortBy" @change="onSortBy($event.target.value)">
+            <select class="pv-sort" :value="valueSortBy" @change="onSortBy($event.target.value)" aria-label="Urutkan">
                 <option v-for="opt in sortOptions" :key="opt.value" :value="opt.value">
                     {{ opt.label }}
                 </option>
             </select>
-        </label>
 
-        <!-- Reset -->
-        <button class="btn reset" type="button" @click="$emit('reset')">Reset</button>
+            <!-- Reset -->
+            <button class="pv-reset-btn pv-reset" type="button" @click="$emit('reset')" aria-label="Reset filters">
+                <FaIcon :icon="['fas','sync']" class="icon" />
+                <span class="pv-reset-label">Reset</span>
+            </button>
+        </div>
     </div>
 </template>
 
@@ -76,53 +82,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.ph {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 12px;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    background: #fff;
-}
-
-@media (min-width: 768px) {
-    .ph {
-        grid-template-columns: 1fr 1fr 1fr auto;
-        align-items: end;
-    }
-}
-
-.row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.lbl {
-    font-size: 14px;
-    color: #555;
-}
-
-.ctl {
-    border: 1px solid #e5e5e5;
-    border-radius: 10px;
-    padding: 8px 10px;
-    font-size: 14px;
-}
-
-.btn.reset {
-    height: 36px;
-    padding: 0 12px;
-    border-radius: 10px;
-    border: 1px solid #e5e5e5;
-    background: #f8f8f8;
-    cursor: pointer;
-}
-
-.btn.reset:hover {
-    background: #f1f1f1;
-}
-</style>
+<!-- Styles moved to main.css (pv- prefixed classes). -->

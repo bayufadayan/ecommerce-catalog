@@ -6,7 +6,7 @@
         <div class="meta">
             <h3 class="title" :title="product.title">{{ product.title }}</h3>
             <div class="line">
-                <span class="price">{{ formatIDR(product.price) }}</span>
+                <span class="price">{{ formatPrice(product.price) }}</span>
                 <span class="rating" v-if="product.rating && product.rating.rate">
                     ★ {{ product.rating.rate.toFixed(1) }}
                 </span>
@@ -16,13 +16,13 @@
 </template>
 
 <script>
-import { formatIDR } from '@/utils/format'
+import { formatPrice } from '@/utils/format'
 
 export default {
     name: 'ProductCard',
     props: { product: { type: Object, required: true } },
     methods: {
-        formatIDR,
+        formatPrice,
         open() {
             this.$router.push(`/products/${this.product.id}`)
         },
