@@ -32,7 +32,7 @@
             <!-- Reset -->
             <button class="pv-reset-btn pv-reset" type="button" @click="$emit('reset')" aria-label="Reset filters">
                 <FaIcon :icon="['fas','sync']" class="icon" />
-                <span class="pv-reset-label">Reset</span>
+                <span class="pv-reset-label">Refresh</span>
             </button>
         </div>
     </div>

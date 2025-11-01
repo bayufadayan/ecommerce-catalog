@@ -19,20 +19,31 @@ export default {
 <style scoped>
 .empty {
     text-align: center;
-    padding: 24px;
-    color: #666;
-    border: 1px dashed #e5e5e5;
-    border-radius: 12px;
-    background-color: orange;
+    padding: 32px 16px;
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    color: #555;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    transition: background-color .2s ease, border-color .2s ease;
+}
+
+.empty:hover {
+    background-color: #f5f5f5;
+    border-color: #d0d0d0;
 }
 
 .title {
     font-weight: 600;
-    margin-bottom: 6px;
-    color: #111;
+    font-size: 16px;
+    color: #222;
+    margin-bottom: 4px;
 }
 
 .desc {
     font-size: 14px;
+    color: #666;
+    max-width: 480px;
+    margin: 0 auto 12px;
+    line-height: 1.5;
 }
 </style>

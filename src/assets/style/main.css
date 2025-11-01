@@ -1,11 +1,17 @@
 @import "./base.css";
 @import "./tokens.css";
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* Layout */
 .container-outside {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .container {
@@ -14,6 +20,8 @@
   padding: 16px;
   margin: 0 auto;
   background-color: var(--color-neutral-50);
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Navbar & Header */
@@ -134,7 +142,8 @@
   position: absolute;
   right: 0;
   top: calc(100% + 8px);
-  min-width: 160px;
+  min-width: 120px;
+  width: 100%;
   background: var(--color-neutral-50);
   border: 1px solid var(--color-border);
   box-shadow: 0 10px 24px rgba(15, 39, 66, .12);
@@ -1592,7 +1601,8 @@
 
 .pv-search,
 .pv-sort {
-  flex: 1 1 0px; /* equal width */
+  flex: 1 1 0px;
+  /* equal width */
 }
 
 .pv-reset {
@@ -1610,7 +1620,8 @@
   padding: 6px 10px;
   height: 36px;
   font-size: 14px;
-  background: rgba(15, 39, 66, 0.04); /* subtle semi-transparent */
+  background: rgba(15, 39, 66, 0.04);
+  /* subtle semi-transparent */
   color: var(--color-text-secondary);
   border: 1px solid rgba(15, 39, 66, 0.06);
   cursor: pointer;
@@ -1674,6 +1685,20 @@
   margin-top: 16px;
   font-size: 13px;
   color: var(--color-text-secondary);
+}
+
+/* Toast Component */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+    z-index: 10;
 }
 
 /* Utility */
