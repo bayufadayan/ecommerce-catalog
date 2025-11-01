@@ -7,7 +7,7 @@
         <ErrorBanner v-if="error" :message="error" @retry="retry" />
 
         <!-- LOADING -->
-        <LoadingSpinner v-else-if="loading" />
+        <ProfileSkeleton v-else-if="loading" />
 
         <!-- EMPTY -->
         <EmptyState v-else-if="!profile" title="Profil tidak tersedia"
@@ -147,17 +147,17 @@
 </template>
 
 <script>
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import ErrorBanner from '@/components/common/ErrorBanner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import BackButton from '@/components/common/BackButton.vue'
+import ProfileSkeleton from '@/components/common/ProfileSkeleton.vue'
 import { mapState } from 'vuex'
 
 const OVERRIDES_KEY = 'fakestore_profile_overrides'
 
 export default {
     name: 'ProfileView',
-    components: { LoadingSpinner, ErrorBanner, EmptyState, BackButton },
+    components: { ErrorBanner, EmptyState, BackButton, ProfileSkeleton },
     data() {
         return {
             editing: false,
